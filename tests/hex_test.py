@@ -17,6 +17,12 @@ class HexCoordTest(unittest.TestCase):
         self.assertEqual(HexCoord(-1, -2, 3) / 2, HexCoord(-0.5, -1, 1.5))
         self.assertEqual(HexCoord(0, -1, 1) / -4, HexCoord(0, 0.25, -0.25))
 
+    def test_rounding(self):
+        self.assertEqual(round(HexCoord(-0.9, -1, 1.9)), HexCoord(-1, -1, 2))
+        self.assertEqual(round(HexCoord(1, -1.5, 0.5)), HexCoord(1, -1, 0))
+        self.assertEqual(round(HexCoord(0.222, 1.1, -1.322)), HexCoord(0, 1, -1))
+        self.assertEqual(round(HexCoord(0, 0.5, -0.5)), HexCoord(0, 0, 0))
+
 
 if __name__ == '__main__':
     unittest.main()

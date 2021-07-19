@@ -20,3 +20,26 @@ class HexCoord:
             return False
 
         return self.p == other.p and self.q == other.q and self.r == other.r
+
+    def __round__(self, n=None):
+        rp = round(self.p)
+        rq = round(self.q)
+        rr = round(self.r)
+
+        p_diff = abs(self.p - rp)
+        q_diff = abs(self.q - rq)
+        r_diff = abs(self.r - rr)
+
+        diff_list = [p_diff, q_diff, r_diff]
+
+        if max(diff_list) == p_diff:
+            rp = -(rq + rr)
+        elif max(diff_list) == q_diff:
+            rq = -(rp + rr)
+        else:
+            rr = -(rp + rq)
+
+        return HexCoord(rp, rq, rr)
+
+    def __str__(self):
+        return f"({self.p}, {self.q}, {self.r})"
