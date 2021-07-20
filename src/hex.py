@@ -74,7 +74,7 @@ class HexMap:
         return HexMap(cells)
 
 
-class HexToPixelAdapter:
+class HexPixelAdapter:
     def __init__(self, dimensions, origin, hex_radius):
         self.dimensions = dimensions
         self.origin = origin
