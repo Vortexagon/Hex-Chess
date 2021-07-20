@@ -91,3 +91,12 @@ class HexPixelAdapter:
         r = (-1/3 * coord[0] + math.sqrt(3)/3 * coord[1]) / self.hex_radius
 
         return HexCoord(p, -p-r, r)
+
+    def get_vertices(self, coord):
+        x, y = self.hex_to_pixel(coord)
+        angle = math.pi / 3
+
+        return [(
+            math.cos(angle * i) + x,
+            math.sin(angle * i) + y
+        ) for i in range(6)]
