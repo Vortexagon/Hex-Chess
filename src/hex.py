@@ -79,3 +79,7 @@ class HexToPixelAdapter:
         self.dimensions = dimensions
         self.origin = origin
         self.hex_radius = hex_radius
+
+    def hex_to_pixel(self, coord):
+        x = self.hex_radius * 1.5 * coord.p + self.origin[0]
+        y = self.hex_radius * (math.sqrt(3) * 0.5 * coord.p + math.sqrt(3) * coord.r) + self.origin[1]
