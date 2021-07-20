@@ -1,17 +1,15 @@
 import pygame
-
 pygame.init()
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-
-running = True
 
 
 def draw_hex(vertices):
     pygame.draw.polygon(screen, (255, 0, 0), vertices, 2)
 
 
+running = True
 while running:
     screen.fill((255, 255, 255))
 
