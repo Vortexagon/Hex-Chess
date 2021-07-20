@@ -65,9 +65,9 @@ class HexMap:
     @staticmethod
     def from_radius(radius):
         cells = dict()
-        for p in range(-radius, radius):
-            for q in range(-radius, radius):
-                for r in range(-radius, radius):
+        for p in range(-radius, radius + 1):
+            for q in range(-radius, radius + 1):
+                for r in range(-radius, radius + 1):
                     if p + q + r == 0:
                         coord = HexCoord(p, q, r)
                         cells[coord] = HexCell(coord)
@@ -97,6 +97,6 @@ class HexPixelAdapter:
         angle = math.pi / 3
 
         return [(
-            math.cos(angle * i) + x,
-            math.sin(angle * i) + y
+            self.hex_radius * math.cos(angle * i) + x,
+            self.hex_radius * math.sin(angle * i) + y
         ) for i in range(6)]
