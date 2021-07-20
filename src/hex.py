@@ -44,6 +44,9 @@ class HexCoord:
     def __str__(self):
         return f"({self.p}, {self.q}, {self.r})"
 
+    def __hash__(self):
+        return hash((1 * self.p, 2 * self.q, 3 * self.r))
+
 
 class HexCell:
     def __init__(self, coord, state=None):
