@@ -1,3 +1,6 @@
+import math
+
+
 class HexCoord:
     def __init__(self, p, q, r):
         assert p + q + r <= 1e-6  # p + q + r should equal 0, but this is to account for floating-point error.
@@ -69,3 +72,22 @@ class HexMap:
                         coord = HexCoord(p, q, r)
                         cells[coord] = HexCell(coord)
         return HexMap(cells)
+
+
+class HexPixelAdapter:
+    def __init__(self, dimensions, origin, hex_radius):
+        self.dimensions = dimensions
+        self.origin = origin
+        self.hex_radius = hex_radius
+
+    def hex_to_pixel(self, coord):
+        x = self.hex_radius * 1.5 * coord.p + self.origin[0]
+        y = self.hex_radius * (math.sqrt(3) * 0.5 * coord.p + math.sqrt(3) * coord.r) + self.origin[1]
+
+        return x, y
+
+    def pixel_to_hex(self, coord):
+        p = 1.5 * coord[0] / self.hex_radius
+        r = (-1/3 * coord[0] + math.sqrt(3)/3 * coord[1]) / self.hex_radius
+
+        return HexCoord(p, -p-r, r)
