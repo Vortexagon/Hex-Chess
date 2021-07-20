@@ -19,5 +19,8 @@ while running:
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False
+        if event.type == pygame.MOUSEBUTTONUP:
+            # code to implement piece movement
+            pass
 
     pygame.display.update()
