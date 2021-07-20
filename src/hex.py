@@ -49,3 +49,20 @@ class HexCell:
     def __init__(self, coord, state=None):
         self.coord = coord
         self.state = state
+
+
+class HexMap:
+    def __init__(self, cells=None):
+        if cells is None: cells = dict()
+        self.cells = cells
+
+    @staticmethod
+    def from_radius(radius):
+        cells = dict()
+        for p in range(-radius, radius):
+            for q in range(-radius, radius):
+                for r in range(-radius, radius):
+                    if p + q + r == 0:
+                        coord = HexCoord(p, q, r)
+                        cells[coord] = HexCell(coord)
+        return HexMap(cells)
