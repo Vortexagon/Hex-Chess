@@ -43,3 +43,29 @@ class HexCoord:
 
     def __str__(self):
         return f"({self.p}, {self.q}, {self.r})"
+
+    def __hash__(self):
+        return hash((1 * self.p, 2 * self.q, 3 * self.r))
+
+
+class HexCell:
+    def __init__(self, coord, state=None):
+        self.coord = coord
+        self.state = state
+
+
+class HexMap:
+    def __init__(self, cells=None):
+        if cells is None: cells = dict()
+        self.cells = cells
+
+    @staticmethod
+    def from_radius(radius):
+        cells = dict()
+        for p in range(-radius, radius):
+            for q in range(-radius, radius):
+                for r in range(-radius, radius):
+                    if p + q + r == 0:
+                        coord = HexCoord(p, q, r)
+                        cells[coord] = HexCell(coord)
+        return HexMap(cells)
