@@ -73,6 +73,9 @@ class HexMap:
                         cells[coord] = HexCell(coord)
         return HexMap(cells)
 
+    def __iter__(self):
+        return self.cells.values()
+
 
 class HexPixelAdapter:
     def __init__(self, dimensions, origin, hex_radius):
