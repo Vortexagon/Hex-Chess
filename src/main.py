@@ -25,7 +25,8 @@ def draw_hex(cell, fill=False):
 
     pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
 
-    SCREEN.blit(piece_imgs["w_pawn"], (pixel_coords[0] - HEX_RADIUS / 2, pixel_coords[1] - HEX_RADIUS / 2))
+    if cell.state:
+        SCREEN.blit(piece_imgs[cell.state], (pixel_coords[0] - HEX_RADIUS / 2, pixel_coords[1] - HEX_RADIUS / 2))
 
 
 hover_coords = (0, 0)
