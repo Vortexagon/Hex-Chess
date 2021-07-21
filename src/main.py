@@ -1,6 +1,6 @@
 import pygame
 
-from hex import HexPixelAdapter, HexMap
+from hex import HexPixelAdapter, HexMap, HexCell, HexCoord
 
 pygame.init()
 
@@ -29,6 +29,7 @@ def draw_hex(cell, fill=False):
 
 
 hover_coords = (0, 0)
+hover_hex = HexCoord(0, 0, 0)
 
 while True:
     for event in pygame.event.get():
@@ -40,13 +41,12 @@ while True:
             pass
         if event.type == pygame.MOUSEMOTION:
             hover_coords = pygame.mouse.get_pos()
+            hover_hex = round(ADAPTER.pixel_to_hex(hover_coords))
 
     SCREEN.fill((255, 255, 255))
 
     for cell in HEX_MAP:
         draw_hex(cell)
-
-    hover_hex = round(ADAPTER.pixel_to_hex(hover_coords))
 
     if hover_hex in HEX_MAP.cells:
         draw_hex(HEX_MAP.cells[hover_hex], fill=True)
