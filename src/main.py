@@ -29,7 +29,7 @@ while True:
 
     SCREEN.fill((255, 255, 255))
 
-    for cell in HEX_MAP.cells.values():
+    for cell in HEX_MAP:
         draw_hex(cell.coord)
     draw_hex(round(ADAPTER.pixel_to_hex(hover_coords)), fill=True)
 
