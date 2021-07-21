@@ -1,6 +1,6 @@
 import pygame
 
-from hex import HexPixelAdapter, HexMap, HexCell, HexCoord
+from hex import HexPixelAdapter, HexMap, HexCoord
 
 pygame.init()
 
