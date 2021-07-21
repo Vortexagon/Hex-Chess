@@ -76,6 +76,12 @@ class HexMap:
     def __iter__(self):
         return self.cells.values()
 
+    def __getitem__(self, item):
+        return self.cells[item].state
+
+    def __setitem__(self, key, value):
+        self.cells[key].state = value
+
 
 class HexPixelAdapter:
     def __init__(self, dimensions, origin, hex_radius):
