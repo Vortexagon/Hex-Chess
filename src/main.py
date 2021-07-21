@@ -20,10 +20,10 @@ piece_imgs = {
 }
 
 
-def draw_hex(coord, fill=False):
-    pygame.draw.polygon(SCREEN, (255, 0, 0), ADAPTER.get_vertices(coord), 0 if fill else 2)
+def draw_hex(cell, fill=False):
+    pygame.draw.polygon(SCREEN, (255, 0, 0), ADAPTER.get_vertices(cell.coord), 0 if fill else 2)
 
-    pixel_coords = ADAPTER.hex_to_pixel(coord)
+    pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
 
     SCREEN.blit(piece_imgs["w_pawn"], (pixel_coords[0] - HEX_RADIUS / 2, pixel_coords[1] - HEX_RADIUS / 2))
 
@@ -44,7 +44,11 @@ while True:
     SCREEN.fill((255, 255, 255))
 
     for cell in HEX_MAP:
-        draw_hex(cell.coord)
-    draw_hex(round(ADAPTER.pixel_to_hex(hover_coords)), fill=True)
+        draw_hex(cell)
+
+    hover_hex = round(ADAPTER.pixel_to_hex(hover_coords))
+
+    if hover_hex in HEX_MAP.cells:
+        draw_hex(HEX_MAP.cells[hover_hex], fill=True)
 
     pygame.display.update()
