@@ -74,7 +74,7 @@ class HexMap:
         return HexMap(cells)
 
     def __iter__(self):
-        return self.cells.values()
+        return iter(self.cells.values())
 
     def __getitem__(self, item):
         return self.cells[item].state
