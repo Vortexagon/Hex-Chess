@@ -1,14 +1,17 @@
 import pygame
 
 from hex import HexPixelAdapter, HexMap, HexCoord
+from pixel import PixelCoord
 
 pygame.init()
 
-WIDTH, HEIGHT = 800, 600
+DIMENSIONS = PixelCoord(800, 600)
+WIDTH, HEIGHT = DIMENSIONS
+ORIGIN = DIMENSIONS / 2
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 HEX_MAP = HexMap.from_radius(4)
 HEX_RADIUS = 30
-ADAPTER = HexPixelAdapter((WIDTH, HEIGHT), (WIDTH / 2, HEIGHT / 2), HEX_RADIUS)
+ADAPTER = HexPixelAdapter(DIMENSIONS, ORIGIN, HEX_RADIUS)
 
 piece_names = [f"{color}_{name}" for color in "wb" for name in ("pawn", "rook", "knight", "bishop", "king", "queen")]
 piece_imgs = {
@@ -25,10 +28,10 @@ def draw_hex(cell, fill=False):
 
     if cell.state:
         pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
-        SCREEN.blit(piece_imgs[cell.state], (pixel_coords[0] - HEX_RADIUS / 2, pixel_coords[1] - HEX_RADIUS / 2))
+        SCREEN.blit(piece_imgs[cell.state], pixel_coords - ORIGIN)
 
 
-hover_coords = (0, 0)
+hover_coords = PixelCoord(0, 0)
 hover_hex = HexCoord(0, 0, 0)
 
 while True:
@@ -40,7 +43,7 @@ while True:
             # code to implement piece movement
             pass
         if event.type == pygame.MOUSEMOTION:
-            hover_coords = pygame.mouse.get_pos()
+            hover_coords = PixelCoord(*pygame.mouse.get_pos())
             hover_hex = round(ADAPTER.pixel_to_hex(hover_coords))
 
     SCREEN.fill((255, 255, 255))
