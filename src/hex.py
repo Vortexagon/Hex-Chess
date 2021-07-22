@@ -98,8 +98,7 @@ class HexPixelAdapter:
         return PixelCoord(x, y)
 
     def pixel_to_hex(self, coord):
-        coord.x -= self.origin.x
-        coord.y -= self.origin.y
+        coord -= self.origin
 
         p = 2/3 * coord.x / self.hex_radius
         r = (-1/3 * coord.x + math.sqrt(3)/3 * coord.y) / self.hex_radius
