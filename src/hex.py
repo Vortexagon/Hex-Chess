@@ -109,7 +109,7 @@ class HexPixelAdapter:
         x, y = self.hex_to_pixel(coord)
         angle = math.pi / 3
 
-        return [(
+        return [PixelCoord(
             self.hex_radius * math.cos(angle * i) + x,
             self.hex_radius * math.sin(angle * i) + y
         ) for i in range(6)]

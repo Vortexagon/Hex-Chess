@@ -18,8 +18,17 @@ class PixelCoord():
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __round__(self, n=None):
+        PixelCoord(round(self.x), round(self.y))
+
     def __str__(self):
         return f"({self.x}, {self.y})"
 
     def __iter__(self):
         return iter([self.x, self.y])
+
+    def __getitem__(self, item):
+        return [self.x, self.y][item]
+
+    def __len__(self):
+        return 2
