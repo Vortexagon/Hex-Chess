@@ -1,5 +1,7 @@
 import math
 
+from pixel import PixelCoord
+
 
 class HexCoord:
     def __init__(self, p, q, r):
@@ -90,16 +92,17 @@ class HexPixelAdapter:
         self.hex_radius = hex_radius
 
     def hex_to_pixel(self, coord):
-        x = self.hex_radius * 1.5 * coord.p + self.origin[0]
-        y = self.hex_radius * (math.sqrt(3) * 0.5 * coord.p + math.sqrt(3) * coord.r) + self.origin[1]
+        x = self.hex_radius * 1.5 * coord.p + self.origin.x
+        y = self.hex_radius * (math.sqrt(3) * 0.5 * coord.p + math.sqrt(3) * coord.r) + self.origin.y
 
-        return x, y
+        return PixelCoord(x, y)
 
     def pixel_to_hex(self, coord):
-        coord = (coord[0] - self.origin[0], coord[1] - self.origin[1])
+        coord.x -= self.origin.x
+        coord.y -= self.origin.y
 
-        p = 2/3 * coord[0] / self.hex_radius
-        r = (-1/3 * coord[0] + math.sqrt(3)/3 * coord[1]) / self.hex_radius
+        p = 2/3 * coord.x / self.hex_radius
+        r = (-1/3 * coord.x + math.sqrt(3)/3 * coord.y) / self.hex_radius
 
         return HexCoord(p, -p-r, r)
 
