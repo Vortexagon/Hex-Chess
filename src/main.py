@@ -71,4 +71,7 @@ while True:
     if hover_hex in HEX_MAP.cells:
         draw_hex(HEX_MAP.cells[hover_hex], fill=True)
 
+    if piece_held:
+        SCREEN.blit(piece_imgs[piece_held], pygame.mouse.get_pos())
+
     pygame.display.update()
