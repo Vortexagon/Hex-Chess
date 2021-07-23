@@ -101,6 +101,13 @@ class HexMap:
 
         return initial_map
 
+    def make_move(self, start, end):
+        if start == end:
+            return
+
+        self[end] = self[start]
+        self[start] = None
+
     def __iter__(self):
         return iter(self.cells.values())
 
