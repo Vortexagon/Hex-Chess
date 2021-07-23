@@ -27,7 +27,7 @@ def draw_hex(cell, fill=False):
     pygame.draw.polygon(SCREEN, (255, 0, 0), ADAPTER.get_vertices(cell.coord), 0 if fill else 2)
     pixel_offset = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
-    if cell.state:
+    if cell.state and cell.coord != start_hex:
         pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
         SCREEN.blit(piece_imgs[cell.state], pixel_coords - pixel_offset)
 
