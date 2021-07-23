@@ -9,7 +9,7 @@ DIMENSIONS = PixelCoord(800, 600)
 WIDTH, HEIGHT = DIMENSIONS
 ORIGIN = DIMENSIONS / 2
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-HEX_MAP = HexMap.from_radius(4)
+HEX_MAP = HexMap.from_glinski()
 HEX_RADIUS = 30
 ADAPTER = HexPixelAdapter(DIMENSIONS, ORIGIN, HEX_RADIUS)
 
@@ -25,10 +25,11 @@ piece_imgs = {
 
 def draw_hex(cell, fill=False):
     pygame.draw.polygon(SCREEN, (255, 0, 0), ADAPTER.get_vertices(cell.coord), 0 if fill else 2)
+    pixel_offset = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
     if cell.state:
         pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
-        SCREEN.blit(piece_imgs[cell.state], pixel_coords - ORIGIN)
+        SCREEN.blit(piece_imgs[cell.state], pixel_coords - pixel_offset)
 
 
 hover_coords = PixelCoord(0, 0)
