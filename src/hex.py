@@ -75,6 +75,33 @@ class HexMap:
                         cells[coord] = HexCell(coord)
         return HexMap(cells)
 
+    @staticmethod
+    def from_glinski():
+        glinski_pos = {
+            "w_pawn": [(-n, -1, n+1) for n in range(5)] + [(n, -n - 1, 1) for n in range(5)],
+            "w_rook": [(-3, -2, 5), (3, -5, 2)],
+            "w_knight": [(-2, -3, 5), (2, -5, 3)],
+            "w_bishop": [(0, -3, 3), (0, -4, 4), (0, -5, 5)],
+            "w_queen": [(-1, -4, 5)],
+            "w_king": [(1, -5, 4)],
+
+            "b_pawn": [(-n, n + 1, -1) for n in range(5)] + [(n, 1, -n - 1) for n in range(5)],
+            "b_rook": [(-3, 5, -2), (3, 2, -5)],
+            "b_knight": [(-2, 5, -3), (2, 3, -5)],
+            "b_bishop": [(0, 3, -3), (0, 4, -4), (0, 5, -5)],
+            "b_queen": [(-1, 5, -4)],
+            "b_king": [(1, 4, -5)],
+        }
+
+        initial_map = HexMap.from_radius(5)
+
+        for key, pos_list in glinski_pos.items():
+            for pos in pos_list:
+                initial_map[HexCoord(*pos)] = key
+
+        return initial_map
+
+
     def __iter__(self):
         return iter(self.cells.values())
 
