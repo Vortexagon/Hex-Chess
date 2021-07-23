@@ -27,7 +27,7 @@ def draw_hex(cell, fill=False):
     pygame.draw.polygon(SCREEN, (255, 0, 0), ADAPTER.get_vertices(cell.coord), 0 if fill else 2)
     pixel_offset = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
-    if cell.state:
+    if cell.state and cell.coord != start_hex:
         pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
         SCREEN.blit(piece_imgs[cell.state], pixel_coords - pixel_offset)
 
@@ -35,14 +35,30 @@ def draw_hex(cell, fill=False):
 hover_coords = PixelCoord(0, 0)
 hover_hex = HexCoord(0, 0, 0)
 
+start_hex = None
+piece_held = None
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+
         if event.type == pygame.MOUSEBUTTONUP:
-            # code to implement piece movement
-            pass
+            clicked_pixel = PixelCoord(*pygame.mouse.get_pos())
+            clicked_hex = round(ADAPTER.pixel_to_hex(clicked_pixel))
+
+            if clicked_hex not in HEX_MAP:
+                continue
+            clicked_state = HEX_MAP[clicked_hex]
+
+            if not piece_held:
+                piece_held = clicked_state
+                start_hex = clicked_hex
+            else:
+                HEX_MAP.make_move(start_hex, clicked_hex)
+                piece_held = start_hex = None
+
         if event.type == pygame.MOUSEMOTION:
             hover_coords = PixelCoord(*pygame.mouse.get_pos())
             hover_hex = round(ADAPTER.pixel_to_hex(hover_coords))
@@ -54,5 +70,8 @@ while True:
 
     if hover_hex in HEX_MAP.cells:
         draw_hex(HEX_MAP.cells[hover_hex], fill=True)
+
+    if piece_held:
+        SCREEN.blit(piece_imgs[piece_held], pygame.mouse.get_pos())
 
     pygame.display.update()

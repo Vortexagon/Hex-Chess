@@ -78,7 +78,7 @@ class HexMap:
     @staticmethod
     def from_glinski():
         glinski_pos = {
-            "w_pawn": [(-n, -1, n+1) for n in range(5)] + [(n, -n - 1, 1) for n in range(5)],
+            "w_pawn": [(-n, -1, n + 1) for n in range(5)] + [(n, -n - 1, 1) for n in range(5)],
             "w_rook": [(-3, -2, 5), (3, -5, 2)],
             "w_knight": [(-2, -3, 5), (2, -5, 3)],
             "w_bishop": [(0, -3, 3), (0, -4, 4), (0, -5, 5)],
@@ -101,6 +101,12 @@ class HexMap:
 
         return initial_map
 
+    def make_move(self, start, end):
+        if start == end:
+            return
+
+        self[end] = self[start]
+        self[start] = None
 
     def __iter__(self):
         return iter(self.cells.values())
@@ -110,6 +116,9 @@ class HexMap:
 
     def __setitem__(self, key, value):
         self.cells[key].state = value
+
+    def __contains__(self, item):
+        return item in self.cells.keys()
 
 
 class HexPixelAdapter:
@@ -127,10 +136,10 @@ class HexPixelAdapter:
     def pixel_to_hex(self, coord):
         coord -= self.origin
 
-        p = 2/3 * coord.x / self.hex_radius
-        r = (-1/3 * coord.x + math.sqrt(3)/3 * coord.y) / self.hex_radius
+        p = 2 / 3 * coord.x / self.hex_radius
+        r = (-1 / 3 * coord.x + math.sqrt(3) / 3 * coord.y) / self.hex_radius
 
-        return HexCoord(p, -p-r, r)
+        return HexCoord(p, -p - r, r)
 
     def get_vertices(self, coord):
         x, y = self.hex_to_pixel(coord)
