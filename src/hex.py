@@ -152,6 +152,17 @@ class HexMap:
         elif moving_piece_str.endswith("knight"):
             return set(abs(offset)) == {1, 2, 3}
 
+        elif moving_piece_str.endswith("queen"):
+            possible_sub = ("rook", "bishop")
+
+            for sub in possible_sub:
+                self[start] = sub
+                result = self.validate_move(start, end)
+                self[start] = moving_piece_str
+
+                if result:
+                    return True
+
         return False
 
     def __iter__(self):
