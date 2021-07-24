@@ -50,7 +50,7 @@ class HexCoord:
         return f"({self.p}, {self.q}, {self.r})"
 
     def __hash__(self):
-        return hash((1 * self.p, 2 * self.q, 3 * self.r))
+        return hash((self.p, self.q, self.r))
 
     def __abs__(self):
         return HexCoord(abs(self.p), abs(self.q), abs(self.r))
