@@ -52,6 +52,9 @@ class HexCoord:
     def __hash__(self):
         return hash((1 * self.p, 2 * self.q, 3 * self.r))
 
+    def __abs__(self):
+        return HexCoord(abs(self.p), abs(self.q), abs(self.r))
+
 
 class HexCell:
     def __init__(self, coord, state=None):
