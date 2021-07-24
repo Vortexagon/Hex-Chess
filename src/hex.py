@@ -55,6 +55,9 @@ class HexCoord:
     def __abs__(self):
         return HexCoord(abs(self.p), abs(self.q), abs(self.r))
 
+    def __iter__(self):
+        return iter([self.p, self.q, self.r])
+
 
 class HexCell:
     def __init__(self, coord, state=None):
@@ -121,12 +124,16 @@ class HexMap:
         offset = end - start
         moving_piece_str = self[start]
 
+        abs_offset = (abs(coord) for coord in offset)
+
         if moving_piece_str.endswith("w_pawn"):
             if offset == HexCoord(0, 1, -1):
                 return True
         elif moving_piece_str.endswith("b_pawn"):
             if offset == HexCoord(0, -1, 1):
                 return True
+        elif moving_piece_str.endswith("king"):
+            return all(-1 <= elem <= 1 for elem in offset) or set(abs_offset) == {1, 2} and len(set(offset)) == 2
 
         return False
 
