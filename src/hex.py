@@ -111,6 +111,25 @@ class HexMap:
         self[end] = self[start]
         self[start] = None
 
+    def validate_move(self, start, end):
+        if start == end:
+            return True
+
+        if not (start in self and end in self):
+            return False
+
+        offset = end - start
+        moving_piece_str = self[start]
+
+        if moving_piece_str.endswith("w_pawn"):
+            if offset == HexCoord(0, 1, -1):
+                return True
+        elif moving_piece_str.endswith("b_pawn"):
+            if offset == HexCoord(0, -1, 1):
+                return True
+
+        return False
+
     def __iter__(self):
         return iter(self.cells.values())
 
