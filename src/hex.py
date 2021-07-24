@@ -140,6 +140,15 @@ class HexMap:
             if 0 in offset:
                 return not any(self[start + dir_offset * step] for step in range(1, max(offset)))
 
+        elif moving_piece_str.endswith("bishop"):
+            if 0 in offset:
+                return False
+
+            empirical_offset = offset / min(abs(offset))
+
+            if set(dir_offset) == {1, -1} and len(set(offset)) == 2:
+                return not any(self[start + empirical_offset * step] for step in range(1, min(abs(offset))))
+
         return False
 
     def __iter__(self):
