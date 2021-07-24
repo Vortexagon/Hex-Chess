@@ -5,7 +5,6 @@ from pixel import PixelCoord
 
 class HexCoord:
     def __init__(self, p, q, r):
-        assert p + q + r <= 1e-6  # p + q + r should equal 0, but this is to account for floating-point error.
         self.p, self.q, self.r = p, q, r
 
     def __add__(self, other):
@@ -124,16 +123,22 @@ class HexMap:
         offset = end - start
         moving_piece_str = self[start]
 
-        abs_offset = (abs(coord) for coord in offset)
+        dir_offset = HexCoord(*map(lambda elem: 1 if elem >= 1 else 0 if elem == 0 else -1, offset))
 
         if moving_piece_str.endswith("w_pawn"):
             if offset == HexCoord(0, 1, -1):
                 return True
+
         elif moving_piece_str.endswith("b_pawn"):
             if offset == HexCoord(0, -1, 1):
                 return True
+
         elif moving_piece_str.endswith("king"):
-            return all(-1 <= elem <= 1 for elem in offset) or set(abs_offset) == {1, 2} and len(set(offset)) == 2
+            return all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2
+
+        elif moving_piece_str.endswith("rook"):
+            if 0 in offset:
+                return not any(self[start + dir_offset * step] for step in range(1, max(offset)))
 
         return False
 
