@@ -149,6 +149,9 @@ class HexMap:
             if set(dir_offset) == {1, -1} and len(set(offset)) == 2:
                 return not any(self[start + empirical_offset * step] for step in range(1, min(abs(offset))))
 
+        elif moving_piece_str.endswith("knight"):
+            return set(abs(offset)) == {1, 2, 3}
+
         return False
 
     def __iter__(self):
