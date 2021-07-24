@@ -56,8 +56,9 @@ while True:
                 piece_held = clicked_state
                 start_hex = clicked_hex
             else:
-                HEX_MAP.make_move(start_hex, clicked_hex)
-                piece_held = start_hex = None
+                if HEX_MAP.validate_move(start_hex, clicked_hex):
+                    HEX_MAP.make_move(start_hex, clicked_hex)
+                    piece_held = start_hex = None
 
         if event.type == pygame.MOUSEMOTION:
             hover_coords = PixelCoord(*pygame.mouse.get_pos())
