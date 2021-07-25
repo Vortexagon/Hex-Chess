@@ -120,18 +120,33 @@ class HexMap:
         if not (start in self and end in self):
             return False
 
-        offset = end - start
         moving_piece_str = self[start]
+        ending_piece_str = self[end]
+
+        if ending_piece_str is not None and moving_piece_str[0] == ending_piece_str[0]:
+            return False
+
+        offset = end - start
 
         dir_offset = HexCoord(*map(lambda elem: 1 if elem >= 1 else 0 if elem == 0 else -1, offset))
 
-        if moving_piece_str.endswith("w_pawn"):
-            if offset == HexCoord(0, 1, -1):
-                return True
+        if moving_piece_str.endswith("pawn"):
+            color = moving_piece_str[0]
+            if color == "w":
+                if offset == HexCoord(0, 1, -1) and ending_piece_str is None:
+                    return True
+                elif ending_piece_str is not None:
+                    if any(offset == attack and ending_piece_str[0] == "b" for attack in (HexCoord(-1, 1, 0),
+                                                                                          HexCoord(1, 0, -1))):
+                        return True
 
-        elif moving_piece_str.endswith("b_pawn"):
-            if offset == HexCoord(0, -1, 1):
-                return True
+            if color == "b":
+                if offset == HexCoord(0, -1, 1) and ending_piece_str is None:
+                    return True
+                elif ending_piece_str is not None:
+                    if any(offset == attack and ending_piece_str[0] == "w" for attack in (HexCoord(-1, 0, 1),
+                                                                                          HexCoord(1, -1, 0))):
+                        return True
 
         elif moving_piece_str.endswith("king"):
             return all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2
