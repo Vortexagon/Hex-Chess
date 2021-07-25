@@ -120,8 +120,13 @@ class HexMap:
         if not (start in self and end in self):
             return False
 
-        offset = end - start
         moving_piece_str = self[start]
+        ending_piece_str = self[end]
+
+        if moving_piece_str[0] == ending_piece_str[0]:
+            return False
+
+        offset = end - start
 
         dir_offset = HexCoord(*map(lambda elem: 1 if elem >= 1 else 0 if elem == 0 else -1, offset))
 
