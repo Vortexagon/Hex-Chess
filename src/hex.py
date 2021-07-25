@@ -123,7 +123,7 @@ class HexMap:
         moving_piece_str = self[start]
         ending_piece_str = self[end]
 
-        if moving_piece_str[0] == ending_piece_str[0]:
+        if ending_piece_str is not None and moving_piece_str[0] == ending_piece_str[0]:
             return False
 
         offset = end - start
