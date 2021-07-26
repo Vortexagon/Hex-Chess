@@ -5,7 +5,6 @@ from pixel import PixelCoord
 
 class HexCoord:
     def __init__(self, p, q, r):
-        assert p + q + r <= 1e-6  # p + q + r should equal 0, but this is to account for floating-point error.
         self.p, self.q, self.r = p, q, r
 
     def __add__(self, other):
@@ -50,7 +49,13 @@ class HexCoord:
         return f"({self.p}, {self.q}, {self.r})"
 
     def __hash__(self):
-        return hash((1 * self.p, 2 * self.q, 3 * self.r))
+        return hash((self.p, self.q, self.r))
+
+    def __abs__(self):
+        return HexCoord(abs(self.p), abs(self.q), abs(self.r))
+
+    def __iter__(self):
+        return iter([self.p, self.q, self.r])
 
 
 class HexCell:
@@ -107,6 +112,73 @@ class HexMap:
 
         self[end] = self[start]
         self[start] = None
+
+    def validate_move(self, start, end):
+        if start == end:
+            return True
+
+        if not (start in self and end in self):
+            return False
+
+        moving_piece_str = self[start]
+        ending_piece_str = self[end]
+
+        if ending_piece_str is not None and moving_piece_str[0] == ending_piece_str[0]:
+            return False
+
+        offset = end - start
+
+        dir_offset = HexCoord(*map(lambda elem: 1 if elem >= 1 else 0 if elem == 0 else -1, offset))
+
+        if moving_piece_str.endswith("pawn"):
+            color = moving_piece_str[0]
+            if color == "w":
+                if offset == HexCoord(0, 1, -1) and ending_piece_str is None:
+                    return True
+                elif ending_piece_str is not None:
+                    if any(offset == attack and ending_piece_str[0] == "b" for attack in (HexCoord(-1, 1, 0),
+                                                                                          HexCoord(1, 0, -1))):
+                        return True
+
+            if color == "b":
+                if offset == HexCoord(0, -1, 1) and ending_piece_str is None:
+                    return True
+                elif ending_piece_str is not None:
+                    if any(offset == attack and ending_piece_str[0] == "w" for attack in (HexCoord(-1, 0, 1),
+                                                                                          HexCoord(1, -1, 0))):
+                        return True
+
+        elif moving_piece_str.endswith("king"):
+            return all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2
+
+        elif moving_piece_str.endswith("rook"):
+            if 0 in offset:
+                return not any(self[start + dir_offset * step] for step in range(1, max(offset)))
+
+        elif moving_piece_str.endswith("bishop"):
+            if 0 in offset:
+                return False
+
+            empirical_offset = offset / min(abs(offset))
+
+            if set(dir_offset) == {1, -1} and len(set(offset)) == 2:
+                return not any(self[start + empirical_offset * step] for step in range(1, min(abs(offset))))
+
+        elif moving_piece_str.endswith("knight"):
+            return set(abs(offset)) == {1, 2, 3}
+
+        elif moving_piece_str.endswith("queen"):
+            possible_sub = ("rook", "bishop")
+
+            for sub in possible_sub:
+                self[start] = sub
+                result = self.validate_move(start, end)
+                self[start] = moving_piece_str
+
+                if result:
+                    return True
+
+        return False
 
     def __iter__(self):
         return iter(self.cells.values())
