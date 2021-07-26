@@ -23,8 +23,11 @@ piece_imgs = {
 }
 
 
-def draw_hex(cell, fill=False):
-    pygame.draw.polygon(SCREEN, (255, 0, 0), ADAPTER.get_vertices(cell.coord), 0 if fill else 2)
+def draw_hex(coord, color, fill=False):
+    pygame.draw.polygon(SCREEN, color, ADAPTER.get_vertices(coord), 0 if fill else 2)
+
+
+def draw_piece(cell):
     pixel_offset = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
     if cell.state and cell.coord != start_hex:
@@ -32,7 +35,7 @@ def draw_hex(cell, fill=False):
         SCREEN.blit(piece_imgs[cell.state], pixel_coords - pixel_offset)
 
 
-hover_coords = PixelCoord(0, 0)
+hover_pixel = PixelCoord(0, 0)
 hover_hex = HexCoord(0, 0, 0)
 
 start_hex = None
@@ -61,16 +64,24 @@ while True:
                     piece_held = start_hex = None
 
         if event.type == pygame.MOUSEMOTION:
-            hover_coords = PixelCoord(*pygame.mouse.get_pos())
-            hover_hex = round(ADAPTER.pixel_to_hex(hover_coords))
+            hover_pixel = PixelCoord(*pygame.mouse.get_pos())
+            hover_hex = round(ADAPTER.pixel_to_hex(hover_pixel))
 
     SCREEN.fill((255, 255, 255))
 
-    for cell in HEX_MAP:
-        draw_hex(cell)
-
     if hover_hex in HEX_MAP.cells:
-        draw_hex(HEX_MAP.cells[hover_hex], fill=True)
+        draw_hex(HEX_MAP.cells[hover_hex].coord, (200, 200, 200), fill=True)
+
+    if start_hex is not None:
+        for coord in HEX_MAP.generate_moves(start_hex):
+            color = [(255, 0, 0), (0, 255, 0)][HEX_MAP[coord] is None]
+            draw_hex(coord, color, fill=True)
+
+    for cell in HEX_MAP:
+        draw_piece(cell)
+
+    for cell in HEX_MAP:
+        draw_hex(cell.coord, (0, 0, 0))
 
     if piece_held:
         SCREEN.blit(piece_imgs[piece_held], pygame.mouse.get_pos())
