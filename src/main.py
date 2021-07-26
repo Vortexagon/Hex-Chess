@@ -24,7 +24,7 @@ piece_imgs = {
 
 
 def draw_hex(coord, color, fill=False):
-    pygame.draw.polygon(SCREEN, color, ADAPTER.get_vertices(coord), 0 if fill else 2)
+    pygame.draw.polygon(SCREEN, color, ADAPTER.get_vertices(coord), 0 if fill else 3)
 
 
 def draw_piece(cell):
