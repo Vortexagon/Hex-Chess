@@ -69,6 +69,18 @@ class HexMap:
         if cells is None: cells = dict()
         self.cells = cells
 
+    def __iter__(self):
+        return iter(self.cells.values())
+
+    def __getitem__(self, item):
+        return self.cells[item].state
+
+    def __setitem__(self, key, value):
+        self.cells[key].state = value
+
+    def __contains__(self, item):
+        return item in self.cells.keys()
+
     @staticmethod
     def from_radius(radius):
         cells = dict()
@@ -180,17 +192,90 @@ class HexMap:
 
         return False
 
-    def __iter__(self):
-        return iter(self.cells.values())
+    def generate_moves(self, start: HexCoord):
+        start_state = self[start]
+        if start_state is None:
+            return []
 
-    def __getitem__(self, item):
-        return self.cells[item].state
+        valid_moves = [start]
 
-    def __setitem__(self, key, value):
-        self.cells[key].state = value
+        for ray in move_vectors[start_state]:
+            final_coord = start
+            while True:
+                final_coord += HexCoord(*ray)
+                if final_coord not in self:
+                    break
+                elif self[final_coord] is None:
+                    if start_state.endswith("pawn") and not self.validate_move(start, final_coord):
+                        break
+                    valid_moves.append(final_coord)
 
-    def __contains__(self, item):
-        return item in self.cells.keys()
+                    if start_state[2:] in ["king", "knight", "pawn"]:
+                        break
+                elif self[final_coord][0] != start_state[0]:
+                    if start_state.endswith("pawn") and not self.validate_move(start, final_coord):
+                        break
+                    valid_moves.append(final_coord)
+                    break
+                else:
+                    break
+
+        return valid_moves
+
+
+move_vectors = {
+    **dict.fromkeys(["w_bishop", "b_bishop"], [
+        (2, -1, -1), (-2, 1, 1),
+        (-1, 2, -1), (1, -2, 1),
+        (-1, -1, 2), (1, 1, -2)
+    ]),
+
+    **dict.fromkeys(["w_rook", "b_rook"], [
+        (0, 1, -1), (0, -1, 1),
+        (1, 0, -1), (-1, 0, 1),
+        (1, -1, 0), (-1, 1, 0)
+    ]),
+
+    **dict.fromkeys(["w_king", "b_king"], [
+        (0, 1, -1), (0, -1, 1),
+        (1, 0, -1), (-1, 0, 1),
+        (1, -1, 0), (-1, 1, 0),
+        (2, -1, -1), (-2, 1, 1),
+        (-1, 2, -1), (1, -2, 1),
+        (-1, -1, 2), (1, 1, -2)
+    ]),
+
+    **dict.fromkeys(["w_queen", "b_queen"], [
+        (0, 1, -1), (0, -1, 1),
+        (1, 0, -1), (-1, 0, 1),
+        (1, -1, 0), (-1, 1, 0),
+        (2, -1, -1), (-2, 1, 1),
+        (-1, 2, -1), (1, -2, 1),
+        (-1, -1, 2), (1, 1, -2)
+    ]),
+
+    **dict.fromkeys(["w_knight", "b_knight"], [
+        (2, 1, -3), (3, -1, -2),
+        (-1, 3, -2), (1, 2, -3),
+        (-2, 3, -1), (-3, 2, 1),
+        (-3, 1, 2), (-2, -1, 3),
+        (-1, -2, 3), (1, -3, 2),
+        (2, -3, 1), (3, -2, -1)
+    ]),
+
+    "w_pawn": [
+        (0, 1, -1),
+        (-1, 1, 0),
+        (1, 0, -1)
+
+    ],
+
+    "b_pawn": [
+        (0, -1, 1),
+        (-1, 0, 1),
+        (1, -1, 0)
+    ]
+}
 
 
 class HexPixelAdapter:
