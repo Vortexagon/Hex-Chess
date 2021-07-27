@@ -4,6 +4,7 @@ from hex import HexPixelAdapter, HexMap, HexCoord
 from pixel import PixelCoord
 
 pygame.init()
+HEX_COLORS = [(209, 139, 70), (252, 210, 164), (230, 171, 111)]
 
 DIMENSIONS = PixelCoord(800, 600)
 WIDTH, HEIGHT = DIMENSIONS
@@ -12,6 +13,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 HEX_MAP = HexMap.from_glinski()
 HEX_RADIUS = 30
 ADAPTER = HexPixelAdapter(DIMENSIONS, ORIGIN, HEX_RADIUS)
+PIECE_OFFSET = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
 piece_names = [f"{color}_{name}" for color in "wb" for name in ("pawn", "rook", "knight", "bishop", "king", "queen")]
 piece_imgs = {
@@ -28,15 +30,10 @@ def draw_hex(coord, color, fill=False):
 
 
 def draw_piece(cell):
-    pixel_offset = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
-
     if cell.state and cell.coord != start_hex:
         pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
-        SCREEN.blit(piece_imgs[cell.state], pixel_coords - pixel_offset)
+        SCREEN.blit(piece_imgs[cell.state], pixel_coords - PIECE_OFFSET)
 
-
-hover_pixel = PixelCoord(0, 0)
-hover_hex = HexCoord(0, 0, 0)
 
 start_hex = None
 piece_held = None
@@ -63,27 +60,24 @@ while True:
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
 
-        if event.type == pygame.MOUSEMOTION:
-            hover_pixel = PixelCoord(*pygame.mouse.get_pos())
-            hover_hex = round(ADAPTER.pixel_to_hex(hover_pixel))
-
     SCREEN.fill((255, 255, 255))
 
-    if hover_hex in HEX_MAP.cells:
-        draw_hex(HEX_MAP.cells[hover_hex].coord, (200, 200, 200), fill=True)
+    for cell in HEX_MAP:
+        color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
+        draw_hex(cell.coord, color, fill=True)
 
     if start_hex is not None:
         for coord in HEX_MAP.generate_moves(start_hex):
-            color = [(255, 0, 0), (0, 255, 0)][HEX_MAP[coord] is None]
+            color = (255, 50, 50) if HEX_MAP[coord] else (50, 255, 50)
             draw_hex(coord, color, fill=True)
+
+        draw_hex(start_hex, (50, 50, 255), fill=True)
 
     for cell in HEX_MAP:
         draw_piece(cell)
-
-    for cell in HEX_MAP:
         draw_hex(cell.coord, (0, 0, 0))
 
     if piece_held:
         SCREEN.blit(piece_imgs[piece_held], pygame.mouse.get_pos())
 
-    pygame.display.update()
+    pygame.display.flip()
