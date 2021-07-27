@@ -2,6 +2,60 @@ import math
 
 from pixel import PixelCoord
 
+move_vectors = {
+    **dict.fromkeys(["w_bishop", "b_bishop"], [
+        (2, -1, -1), (-2, 1, 1),
+        (-1, 2, -1), (1, -2, 1),
+        (-1, -1, 2), (1, 1, -2)
+    ]),
+
+    **dict.fromkeys(["w_rook", "b_rook"], [
+        (0, 1, -1), (0, -1, 1),
+        (1, 0, -1), (-1, 0, 1),
+        (1, -1, 0), (-1, 1, 0)
+    ]),
+
+    **dict.fromkeys(["w_king", "b_king"], [
+        (0, 1, -1), (0, -1, 1),
+        (1, 0, -1), (-1, 0, 1),
+        (1, -1, 0), (-1, 1, 0),
+        (2, -1, -1), (-2, 1, 1),
+        (-1, 2, -1), (1, -2, 1),
+        (-1, -1, 2), (1, 1, -2)
+    ]),
+
+    **dict.fromkeys(["w_queen", "b_queen"], [
+        (0, 1, -1), (0, -1, 1),
+        (1, 0, -1), (-1, 0, 1),
+        (1, -1, 0), (-1, 1, 0),
+        (2, -1, -1), (-2, 1, 1),
+        (-1, 2, -1), (1, -2, 1),
+        (-1, -1, 2), (1, 1, -2)
+    ]),
+
+    **dict.fromkeys(["w_knight", "b_knight"], [
+        (2, 1, -3), (3, -1, -2),
+        (-1, 3, -2), (1, 2, -3),
+        (-2, 3, -1), (-3, 2, 1),
+        (-3, 1, 2), (-2, -1, 3),
+        (-1, -2, 3), (1, -3, 2),
+        (2, -3, 1), (3, -2, -1)
+    ]),
+
+    "w_pawn": [
+        (0, 1, -1),
+        (-1, 1, 0),
+        (1, 0, -1)
+
+    ],
+
+    "b_pawn": [
+        (0, -1, 1),
+        (-1, 0, 1),
+        (1, -1, 0)
+    ]
+}
+
 
 class HexCoord:
     def __init__(self, p, q, r):
@@ -183,7 +237,7 @@ class HexMap:
             possible_sub = ("rook", "bishop")
 
             for sub in possible_sub:
-                self[start] = sub
+                self[start] = moving_piece_str[:2] + sub
                 result = self.validate_move(start, end)
                 self[start] = moving_piece_str
 
@@ -209,7 +263,6 @@ class HexMap:
                     if start_state.endswith("pawn") and not self.validate_move(start, final_coord):
                         break
                     valid_moves.append(final_coord)
-
                     if start_state[2:] in ["king", "knight", "pawn"]:
                         break
                 elif self[final_coord][0] != start_state[0]:
@@ -221,61 +274,6 @@ class HexMap:
                     break
 
         return valid_moves
-
-
-move_vectors = {
-    **dict.fromkeys(["w_bishop", "b_bishop"], [
-        (2, -1, -1), (-2, 1, 1),
-        (-1, 2, -1), (1, -2, 1),
-        (-1, -1, 2), (1, 1, -2)
-    ]),
-
-    **dict.fromkeys(["w_rook", "b_rook"], [
-        (0, 1, -1), (0, -1, 1),
-        (1, 0, -1), (-1, 0, 1),
-        (1, -1, 0), (-1, 1, 0)
-    ]),
-
-    **dict.fromkeys(["w_king", "b_king"], [
-        (0, 1, -1), (0, -1, 1),
-        (1, 0, -1), (-1, 0, 1),
-        (1, -1, 0), (-1, 1, 0),
-        (2, -1, -1), (-2, 1, 1),
-        (-1, 2, -1), (1, -2, 1),
-        (-1, -1, 2), (1, 1, -2)
-    ]),
-
-    **dict.fromkeys(["w_queen", "b_queen"], [
-        (0, 1, -1), (0, -1, 1),
-        (1, 0, -1), (-1, 0, 1),
-        (1, -1, 0), (-1, 1, 0),
-        (2, -1, -1), (-2, 1, 1),
-        (-1, 2, -1), (1, -2, 1),
-        (-1, -1, 2), (1, 1, -2)
-    ]),
-
-    **dict.fromkeys(["w_knight", "b_knight"], [
-        (2, 1, -3), (3, -1, -2),
-        (-1, 3, -2), (1, 2, -3),
-        (-2, 3, -1), (-3, 2, 1),
-        (-3, 1, 2), (-2, -1, 3),
-        (-1, -2, 3), (1, -3, 2),
-        (2, -3, 1), (3, -2, -1)
-    ]),
-
-    "w_pawn": [
-        (0, 1, -1),
-        (-1, 1, 0),
-        (1, 0, -1)
-
-    ],
-
-    "b_pawn": [
-        (0, -1, 1),
-        (-1, 0, 1),
-        (1, -1, 0)
-    ]
-}
 
 
 class HexPixelAdapter:
