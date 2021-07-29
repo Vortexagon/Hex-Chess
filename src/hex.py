@@ -215,7 +215,17 @@ class HexMap:
                         return True
 
         elif moving_piece_str.endswith("king"):
-            return all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2
+            if all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2:
+                self.make_move(start, end)
+                result = True
+                for coord, cell in self.cells.items():
+                    # If the cell isnt empty and the piece is of the opposite color, and isnt a king
+                    if cell.state is not None and cell.state[0] != moving_piece_str[0] and not cell.state.endswith("king"):
+                        if end in self.generate_moves(coord):
+                            result = False
+                self.make_move(end, start)
+                self[end] = ending_piece_str
+                return result
 
         elif moving_piece_str.endswith("rook"):
             if 0 in offset:
@@ -258,18 +268,27 @@ class HexMap:
             curr_hex = start
             while True:
                 curr_hex += ray
+
                 if curr_hex not in self:
                     break
 
+                if start_state.endswith("king") and self.validate_move(start, curr_hex):
+                    valid_moves.append(curr_hex)
+                    break
+
                 end_state = self[curr_hex]
+                # If there is nothing at the ending hex
                 if end_state is None:
                     if start_state.endswith("pawn") and not self.validate_move(start, curr_hex):
                         break
                     valid_moves.append(curr_hex)
+                # If there is a piece and you're both different colours
                 elif start_state[0] != end_state[0]:
                     if start_state.endswith("pawn") and not self.validate_move(start, curr_hex):
                         break
                     valid_moves.append(curr_hex)
+                    break
+                else:
                     break
 
                 if start_state[2:] in ["king", "pawn", "knight"]:
