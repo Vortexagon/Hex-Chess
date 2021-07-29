@@ -52,7 +52,7 @@ while True:
                 continue
             clicked_state = HEX_MAP[clicked_hex]
 
-            if not piece_held:
+            if not piece_held or clicked_state is None:
                 piece_held = clicked_state
                 start_hex = clicked_hex
             else:
