@@ -58,7 +58,7 @@ while True:
                 start_hex = clicked_hex
                 valid_moves = HEX_MAP.generate_moves(start_hex)
             else:
-                if HEX_MAP.validate_move(start_hex, clicked_hex):
+                if clicked_hex in valid_moves:
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
 
