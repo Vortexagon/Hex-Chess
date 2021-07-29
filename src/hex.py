@@ -220,8 +220,12 @@ class HexMap:
                 result = True
                 for coord, cell in self.cells.items():
                     # If the cell isnt empty and the piece is of the opposite color, and isnt a king
-                    if cell.state is not None and cell.state[0] != moving_piece_str[0] and not cell.state.endswith("king"):
-                        if end in self.generate_moves(coord):
+                    if cell.state is not None and cell.state[0] != moving_piece_str[0]:
+                        if cell.state.endswith("king"):
+                            for move in move_vectors[cell.state]:
+                                if end == HexCoord(*move) + coord:
+                                    result = False
+                        elif end in self.generate_moves(coord):
                             result = False
                 self.make_move(end, start)
                 self[end] = ending_piece_str
@@ -295,6 +299,9 @@ class HexMap:
                 if start_state[2:] in ["king", "pawn", "knight"]:
                     break
         return valid_moves
+
+    def is_w_king_checked(self):
+        pass
 
 
 class HexPixelAdapter:
