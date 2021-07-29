@@ -272,8 +272,9 @@ class HexMap:
                 if curr_hex not in self:
                     break
 
-                if start_state.endswith("king") and self.validate_move(start, curr_hex):
-                    valid_moves.append(curr_hex)
+                if start_state.endswith("king"):
+                    if self.validate_move(start, curr_hex):
+                        valid_moves.append(curr_hex)
                     break
 
                 end_state = self[curr_hex]
