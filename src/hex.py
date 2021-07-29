@@ -254,25 +254,26 @@ class HexMap:
         valid_moves = [start]
 
         for ray in move_vectors[start_state]:
-            final_coord = start
+            ray = HexCoord(*ray)
+            curr_hex = start
             while True:
-                final_coord += HexCoord(*ray)
-                if final_coord not in self:
-                    break
-                elif self[final_coord] is None:
-                    if start_state.endswith("pawn") and not self.validate_move(start, final_coord):
-                        break
-                    valid_moves.append(final_coord)
-                    if start_state[2:] in ["king", "knight", "pawn"]:
-                        break
-                elif self[final_coord][0] != start_state[0]:
-                    if start_state.endswith("pawn") and not self.validate_move(start, final_coord):
-                        break
-                    valid_moves.append(final_coord)
-                    break
-                else:
+                curr_hex += ray
+                if curr_hex not in self:
                     break
 
+                end_state = self[curr_hex]
+                if end_state is None:
+                    if start_state.endswith("pawn") and not self.validate_move(start, curr_hex):
+                        break
+                    valid_moves.append(curr_hex)
+                elif start_state[0] != end_state[0]:
+                    if start_state.endswith("pawn") and not self.validate_move(start, curr_hex):
+                        break
+                    valid_moves.append(curr_hex)
+                    break
+
+                if start_state[2:] in ["king", "pawn", "knight"]:
+                    break
         return valid_moves
 
 

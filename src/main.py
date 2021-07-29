@@ -53,7 +53,9 @@ while True:
                 continue
             clicked_state = HEX_MAP[clicked_hex]
 
-            if not piece_held and clicked_state is not None:
+            if not piece_held:
+                if clicked_state is None:
+                    continue
                 piece_held = clicked_state
                 start_hex = clicked_hex
                 valid_moves = HEX_MAP.generate_moves(start_hex)
