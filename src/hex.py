@@ -217,19 +217,10 @@ class HexMap:
         elif moving_piece_str.endswith("king"):
             if all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2:
                 self.make_move(start, end)
-                result = True
-                for coord, cell in self.cells.items():
-                    # If the cell isnt empty and the piece is of the opposite color, and isnt a king
-                    if cell.state is not None and cell.state[0] != moving_piece_str[0]:
-                        if cell.state.endswith("king"):
-                            for move in move_vectors[cell.state]:
-                                if end == HexCoord(*move) + coord:
-                                    result = False
-                        elif end in self.generate_moves(coord):
-                            result = False
+                result = self.is_king_checked(moving_piece_str[0])
                 self.make_move(end, start)
                 self[end] = ending_piece_str
-                return result
+                return not result
 
         elif moving_piece_str.endswith("rook"):
             if 0 in offset:
@@ -300,8 +291,24 @@ class HexMap:
                     break
         return valid_moves
 
-    def is_w_king_checked(self):
-        pass
+    def is_king_checked(self, color):
+        king_coords = None
+        for cell in self:
+            if cell.state == f"{color}_king":
+                king_coords = cell.coord
+
+        result = False
+
+        for coord, cell in self.cells.items():
+            # If the cell isn't empty and the piece is of the opposite color, and isn't a king
+            if cell.state is not None and cell.state[0] != color:
+                if cell.state.endswith("king"):
+                    for move in move_vectors[cell.state]:
+                        if king_coords == HexCoord(*move) + coord:
+                            result = True
+                elif king_coords in self.generate_moves(coord):
+                    result = True
+        return result
 
 
 class HexPixelAdapter:
