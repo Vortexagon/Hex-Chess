@@ -329,6 +329,14 @@ class HexMap:
                         break
         return False
 
+    def is_king_checked_after_move(self, color, start, end):
+        prev_state = self[end]
+        self.make_move(start, end)
+        result = self.is_king_checked(color)
+        self.make_move(end, start)
+        self[end] = prev_state
+        return result
+
 
 class HexPixelAdapter:
     def __init__(self, dimensions, origin, hex_radius):
