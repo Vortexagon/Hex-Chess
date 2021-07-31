@@ -303,10 +303,12 @@ class HexMap:
             if cell.state[0] == color:
                 continue
             for ray in move_vectors[cell.state]:
+                ray = HexCoord(*ray)
                 curr_hex = cell.coord
 
                 while True:
-                    curr_hex += HexCoord(*ray)
+                    curr_hex += ray
+
                     if curr_hex not in self:
                         break
                     if self[curr_hex] is not None and self[curr_hex][0] == cell.state[0]:
