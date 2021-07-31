@@ -297,18 +297,35 @@ class HexMap:
             if cell.state == f"{color}_king":
                 king_coords = cell.coord
 
-        result = False
-
         for coord, cell in self.cells.items():
-            # If the cell isn't empty and the piece is of the opposite color, and isn't a king
-            if cell.state is not None and cell.state[0] != color:
-                if cell.state.endswith("king"):
-                    for move in move_vectors[cell.state]:
-                        if king_coords == HexCoord(*move) + coord:
-                            result = True
-                elif king_coords in self.generate_moves(coord):
-                    result = True
-        return result
+            if cell.state is None:
+                continue
+            if cell.state[0] == color:
+                continue
+            for ray in move_vectors[cell.state]:
+                curr_hex = cell.coord
+
+                while True:
+                    curr_hex += HexCoord(*ray)
+                    if curr_hex not in self:
+                        break
+                    if self[curr_hex] is not None and self[curr_hex][0] == cell.state[0]:
+                        break
+                    if cell.state.endswith("pawn"):
+                        offset = curr_hex - cell.coord
+                        if cell.state[0] == "w":
+                            if offset not in [HexCoord(-1, 1, 0), HexCoord(1, 0, -1)]:
+                                break
+                        elif cell.state[0] == "b":
+                            if offset not in (HexCoord(-1, 0, 1), HexCoord(1, -1, 0)):
+                                break
+                    if curr_hex == king_coords:
+                        return True
+                    elif self[curr_hex] is not None:
+                        break
+                    elif cell.state[2:] in ["king", "pawn", "knight"]:
+                        break
+        return False
 
 
 class HexPixelAdapter:
