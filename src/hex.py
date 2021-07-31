@@ -199,12 +199,12 @@ class HexMap:
                     if start_state[0] == "w":
                         if offset in [HexCoord(-1, 1, 0), HexCoord(1, 0, -1)] and self[curr_hex] is None:
                             break
-                        if offset == HexCoord(1, 0, -1) and self[curr_hex] is not None:
+                        if offset == HexCoord(0, 1, -1) and self[curr_hex] is not None:
                             break
                     elif start_state[0] == "b":
-                        if offset in (HexCoord(-1, 0, 1), HexCoord(1, -1, 0)) and curr_hex is None:
+                        if offset in [HexCoord(-1, 0, 1), HexCoord(1, -1, 0)] and self[curr_hex] is None:
                             break
-                        if offset == HexCoord(-1, 0, 1) and self[curr_hex] is not None:
+                        if offset == HexCoord(0, -1, 1) and self[curr_hex] is not None:
                             break
 
                 valid_moves.append(curr_hex)
