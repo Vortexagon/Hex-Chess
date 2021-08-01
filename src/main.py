@@ -37,7 +37,6 @@ def draw_piece(cell):
 
 start_hex = None
 piece_held = None
-valid_moves = None
 
 while True:
     for event in pygame.event.get():
@@ -53,14 +52,11 @@ while True:
                 continue
             clicked_state = HEX_MAP[clicked_hex]
 
-            if not piece_held:
-                if clicked_state is None:
-                    continue
+            if not piece_held or clicked_state is None:
                 piece_held = clicked_state
                 start_hex = clicked_hex
-                valid_moves = HEX_MAP.generate_moves(start_hex)
             else:
-                if clicked_hex in valid_moves:
+                if HEX_MAP.validate_move(start_hex, clicked_hex):
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
 
@@ -71,7 +67,7 @@ while True:
         draw_hex(cell.coord, color, fill=True)
 
     if start_hex is not None:
-        for coord in valid_moves:
+        for coord in HEX_MAP.generate_moves(start_hex):
             color = (255, 50, 50) if HEX_MAP[coord] else (50, 255, 50)
             draw_hex(coord, color, fill=True)
 
