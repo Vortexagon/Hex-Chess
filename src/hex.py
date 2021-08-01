@@ -216,6 +216,13 @@ class HexMap:
 
         return valid_moves
 
+    def cells_with_state_col(self, color):
+        valid_cells = []
+        for cell in self:
+            if cell.state is not None and cell.state.startswith(color):
+                valid_cells.append(cell)
+        return valid_cells
+
     def make_move(self, start, end):
         if start == end:
             return
