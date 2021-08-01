@@ -172,6 +172,50 @@ class HexMap:
 
         return initial_map
 
+    def generate_moves(self, start: HexCoord):
+        start_state = self[start]
+        if start_state is None:
+            return []
+
+        valid_moves = [start]
+
+        for ray in move_vectors[start_state]:
+            ray = HexCoord(*ray)
+            curr_hex = start
+
+            while True:
+                curr_hex += ray
+                if curr_hex not in self:
+                    break
+                if self[curr_hex] is not None and self[curr_hex][0] == start_state[0]:
+                    break
+                if self.is_king_checked_after_move(start_state[0], start, curr_hex):
+                    if start_state[2:] in ["king", "pawn", "knight"]:
+                        break
+                    else:
+                        continue
+                if start_state.endswith("pawn"):
+                    offset = curr_hex - start
+                    if start_state[0] == "w":
+                        if offset in [HexCoord(-1, 1, 0), HexCoord(1, 0, -1)] and self[curr_hex] is None:
+                            break
+                        if offset == HexCoord(0, 1, -1) and self[curr_hex] is not None:
+                            break
+                    elif start_state[0] == "b":
+                        if offset in [HexCoord(-1, 0, 1), HexCoord(1, -1, 0)] and self[curr_hex] is None:
+                            break
+                        if offset == HexCoord(0, -1, 1) and self[curr_hex] is not None:
+                            break
+
+                valid_moves.append(curr_hex)
+
+                if self[curr_hex] is not None:
+                    break
+                if start_state[2:] in ["king", "pawn", "knight"]:
+                    break
+
+        return valid_moves
+
     def make_move(self, start, end):
         if start == end:
             return
@@ -215,7 +259,12 @@ class HexMap:
                         return True
 
         elif moving_piece_str.endswith("king"):
-            return all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2
+            if all(-1 <= elem <= 1 for elem in offset) or set(abs(offset)) == {1, 2} and len(set(offset)) == 2:
+                self.make_move(start, end)
+                result = self.is_king_checked(moving_piece_str[0])
+                self.make_move(end, start)
+                self[end] = ending_piece_str
+                return not result
 
         elif moving_piece_str.endswith("rook"):
             if 0 in offset:
@@ -246,34 +295,51 @@ class HexMap:
 
         return False
 
-    def generate_moves(self, start: HexCoord):
-        start_state = self[start]
-        if start_state is None:
-            return []
+    def is_king_checked(self, color):
+        king_coords = None
+        for cell in self:
+            if cell.state == f"{color}_king":
+                king_coords = cell.coord
 
-        valid_moves = [start]
+        for coord, cell in self.cells.items():
+            if cell.state is None:
+                continue
+            if cell.state[0] == color:
+                continue
+            for ray in move_vectors[cell.state]:
+                ray = HexCoord(*ray)
+                curr_hex = cell.coord
 
-        for ray in move_vectors[start_state]:
-            final_coord = start
-            while True:
-                final_coord += HexCoord(*ray)
-                if final_coord not in self:
-                    break
-                elif self[final_coord] is None:
-                    if start_state.endswith("pawn") and not self.validate_move(start, final_coord):
-                        break
-                    valid_moves.append(final_coord)
-                    if start_state[2:] in ["king", "knight", "pawn"]:
-                        break
-                elif self[final_coord][0] != start_state[0]:
-                    if start_state.endswith("pawn") and not self.validate_move(start, final_coord):
-                        break
-                    valid_moves.append(final_coord)
-                    break
-                else:
-                    break
+                while True:
+                    curr_hex += ray
 
-        return valid_moves
+                    if curr_hex not in self:
+                        break
+                    if self[curr_hex] is not None and self[curr_hex][0] == cell.state[0]:
+                        break
+                    if cell.state.endswith("pawn"):
+                        offset = curr_hex - cell.coord
+                        if cell.state[0] == "w":
+                            if offset not in [HexCoord(-1, 1, 0), HexCoord(1, 0, -1)]:
+                                break
+                        elif cell.state[0] == "b":
+                            if offset not in (HexCoord(-1, 0, 1), HexCoord(1, -1, 0)):
+                                break
+                    if curr_hex == king_coords:
+                        return True
+                    elif self[curr_hex] is not None:
+                        break
+                    elif cell.state[2:] in ["king", "pawn", "knight"]:
+                        break
+        return False
+
+    def is_king_checked_after_move(self, color, start, end):
+        prev_state = self[end]
+        self.make_move(start, end)
+        result = self.is_king_checked(color)
+        self.make_move(end, start)
+        self[end] = prev_state
+        return result
 
 
 class HexPixelAdapter:
