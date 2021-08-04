@@ -5,6 +5,8 @@ from pixel import PixelCoord
 
 pygame.init()
 
+SIDE_FONT = pygame.font.SysFont('Arial', 30)
+
 GAME_DIMENSIONS = PixelCoord(600, 600)
 SIDE_DIMENSIONS = PixelCoord(400, 0)
 GAME_WIDTH, GAME_HEIGHT = GAME_DIMENSIONS
@@ -68,6 +70,19 @@ while True:
 
     SCREEN.fill((255, 255, 255))
     pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), GAME_DIMENSIONS)
+
+    text = ""
+    if HEX_MAP.is_king_checked('w'):
+        if HEX_MAP.is_king_checkmated('w'):
+            text = "White King Checkmated"
+        else:
+            text = "White King Checked"
+    elif HEX_MAP.is_king_checked('b'):
+        if HEX_MAP.is_king_checkmated('b'):
+            text = "Black King Checkmated"
+        else:
+            text = "Black King Checked"
+    SCREEN.blit(SIDE_FONT.render(text, True, (0, 0, 0)), (GAME_WIDTH, 50))
 
     for cell in HEX_MAP:
         color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
