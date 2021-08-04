@@ -8,7 +8,8 @@ pygame.init()
 DIMENSIONS = PixelCoord(800, 600)
 WIDTH, HEIGHT = DIMENSIONS
 ORIGIN = DIMENSIONS / 2
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+
+SCREEN = pygame.display.set_mode(DIMENSIONS)
 HEX_MAP = HexMap.from_glinski()
 HEX_RADIUS = 30
 HEX_COLORS = [(209, 139, 70), (252, 210, 164), (230, 171, 111)]
