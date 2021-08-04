@@ -1,19 +1,20 @@
 import pygame
 
-from hex import HexPixelAdapter, HexMap, HexCoord
+from hex import HexPixelAdapter, HexMap
 from pixel import PixelCoord
 
 pygame.init()
 
-DIMENSIONS = PixelCoord(800, 600)
-WIDTH, HEIGHT = DIMENSIONS
-ORIGIN = DIMENSIONS / 2
+GAME_DIMENSIONS = PixelCoord(600, 600)
+SIDE_DIMENSIONS = PixelCoord(400, 0)
+GAME_WIDTH, GAME_HEIGHT = GAME_DIMENSIONS
+GAME_ORIGIN = GAME_DIMENSIONS / 2
 
-SCREEN = pygame.display.set_mode(DIMENSIONS)
+SCREEN = pygame.display.set_mode(GAME_DIMENSIONS + SIDE_DIMENSIONS)
 HEX_MAP = HexMap.from_glinski()
 HEX_RADIUS = 30
 HEX_COLORS = [(209, 139, 70), (252, 210, 164), (230, 171, 111)]
-ADAPTER = HexPixelAdapter(DIMENSIONS, ORIGIN, HEX_RADIUS)
+ADAPTER = HexPixelAdapter(GAME_DIMENSIONS, GAME_ORIGIN, HEX_RADIUS)
 PIECE_OFFSET = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
 piece_names = [f"{color}_{name}" for color in "wb" for name in ("pawn", "rook", "knight", "bishop", "king", "queen")]
