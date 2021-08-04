@@ -72,14 +72,16 @@ while True:
 
                     if HEX_MAP.is_king_checked('w'):
                         if HEX_MAP.is_king_checkmated('w'):
-                            text = "White King Checkmated"
+                            king_state = "White King Checkmated!\nBlack Wins"
                         else:
-                            text = "White King Checked"
+                            king_state = "White King Checked!"
                     elif HEX_MAP.is_king_checked('b'):
                         if HEX_MAP.is_king_checkmated('b'):
-                            text = "Black King Checkmated"
+                            king_state = "Black King Checkmated\nWhite Wins"
                         else:
-                            text = "Black King Checked"
+                            king_state = "Black King Checked!"
+                    else:
+                        king_state = ""
 
     SCREEN.fill((255, 255, 255))
     pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), GAME_DIMENSIONS)
