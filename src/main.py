@@ -67,6 +67,7 @@ while True:
                     piece_held = start_hex = None
 
     SCREEN.fill((255, 255, 255))
+    pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), GAME_DIMENSIONS)
 
     for cell in HEX_MAP:
         color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
