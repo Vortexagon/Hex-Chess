@@ -271,7 +271,8 @@ class HexMap:
     def is_king_checkmated(self, color):
         if self.is_king_checked(color):
             if all(len(self.generate_moves(cell.coord)) == 1 for cell in self.cells_with_state_col(color)):
-                print(f"{'White' if color == 'w' else 'Black'} King Checkmated!")
+                return True
+        return False
 
     def is_king_checked_after_move(self, color, start, end):
         prev_state = self[end]

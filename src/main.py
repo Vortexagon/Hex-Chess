@@ -1,18 +1,22 @@
 import pygame
 
-from hex import HexPixelAdapter, HexMap, HexCoord
+from hex import HexPixelAdapter, HexMap
 from pixel import PixelCoord
 
 pygame.init()
 
-DIMENSIONS = PixelCoord(800, 600)
-WIDTH, HEIGHT = DIMENSIONS
-ORIGIN = DIMENSIONS / 2
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+SIDE_FONT = pygame.font.SysFont('Arial', 30)
+
+GAME_DIMENSIONS = PixelCoord(600, 600)
+SIDE_DIMENSIONS = PixelCoord(400, 0)
+GAME_WIDTH, GAME_HEIGHT = GAME_DIMENSIONS
+GAME_ORIGIN = GAME_DIMENSIONS / 2
+
+SCREEN = pygame.display.set_mode(GAME_DIMENSIONS + SIDE_DIMENSIONS)
 HEX_MAP = HexMap.from_glinski()
 HEX_RADIUS = 30
 HEX_COLORS = [(209, 139, 70), (252, 210, 164), (230, 171, 111)]
-ADAPTER = HexPixelAdapter(DIMENSIONS, ORIGIN, HEX_RADIUS)
+ADAPTER = HexPixelAdapter(GAME_DIMENSIONS, GAME_ORIGIN, HEX_RADIUS)
 PIECE_OFFSET = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
 piece_names = [f"{color}_{name}" for color in "wb" for name in ("pawn", "rook", "knight", "bishop", "king", "queen")]
@@ -39,6 +43,8 @@ start_hex = None
 piece_held = None
 valid_moves = None
 
+king_state = ""
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -64,7 +70,23 @@ while True:
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
 
+                    if HEX_MAP.is_king_checked('w'):
+                        if HEX_MAP.is_king_checkmated('w'):
+                            king_state = "White King Checkmated! Black Wins"
+                        else:
+                            king_state = "White King Checked!"
+                    elif HEX_MAP.is_king_checked('b'):
+                        if HEX_MAP.is_king_checkmated('b'):
+                            king_state = "Black King Checkmated White Wins"
+                        else:
+                            king_state = "Black King Checked!"
+                    else:
+                        king_state = ""
+
     SCREEN.fill((255, 255, 255))
+    pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), GAME_DIMENSIONS)
+
+    SCREEN.blit(SIDE_FONT.render(king_state, True, (0, 0, 0)), (GAME_WIDTH, 50))
 
     for cell in HEX_MAP:
         color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
