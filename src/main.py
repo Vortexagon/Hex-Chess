@@ -72,12 +72,12 @@ while True:
 
                     if HEX_MAP.is_king_checked('w'):
                         if HEX_MAP.is_king_checkmated('w'):
-                            king_state = "White King Checkmated!\nBlack Wins"
+                            king_state = "White King Checkmated! Black Wins"
                         else:
                             king_state = "White King Checked!"
                     elif HEX_MAP.is_king_checked('b'):
                         if HEX_MAP.is_king_checkmated('b'):
-                            king_state = "Black King Checkmated\nWhite Wins"
+                            king_state = "Black King Checkmated White Wins"
                         else:
                             king_state = "Black King Checked!"
                     else:
