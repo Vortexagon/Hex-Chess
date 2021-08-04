@@ -43,6 +43,8 @@ start_hex = None
 piece_held = None
 valid_moves = None
 
+king_state = ""
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -68,21 +70,21 @@ while True:
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
 
+                    if HEX_MAP.is_king_checked('w'):
+                        if HEX_MAP.is_king_checkmated('w'):
+                            text = "White King Checkmated"
+                        else:
+                            text = "White King Checked"
+                    elif HEX_MAP.is_king_checked('b'):
+                        if HEX_MAP.is_king_checkmated('b'):
+                            text = "Black King Checkmated"
+                        else:
+                            text = "Black King Checked"
+
     SCREEN.fill((255, 255, 255))
     pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), GAME_DIMENSIONS)
 
-    text = ""
-    if HEX_MAP.is_king_checked('w'):
-        if HEX_MAP.is_king_checkmated('w'):
-            text = "White King Checkmated"
-        else:
-            text = "White King Checked"
-    elif HEX_MAP.is_king_checked('b'):
-        if HEX_MAP.is_king_checkmated('b'):
-            text = "Black King Checkmated"
-        else:
-            text = "Black King Checked"
-    SCREEN.blit(SIDE_FONT.render(text, True, (0, 0, 0)), (GAME_WIDTH, 50))
+    SCREEN.blit(SIDE_FONT.render(king_state, True, (0, 0, 0)), (GAME_WIDTH, 50))
 
     for cell in HEX_MAP:
         color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
