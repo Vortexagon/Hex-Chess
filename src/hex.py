@@ -122,6 +122,7 @@ class HexMap:
     def __init__(self, cells=None):
         if cells is None: cells = dict()
         self.cells = cells
+        self.ply = 0
 
     def __iter__(self):
         return iter(self.cells.values())
@@ -229,6 +230,8 @@ class HexMap:
 
         self[end] = self[start]
         self[start] = None
+
+        self.ply += 1
 
     def is_king_checked(self, color):
         king_coords = None

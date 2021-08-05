@@ -5,7 +5,7 @@ from pixel import PixelCoord
 
 pygame.init()
 
-SIDE_FONT = pygame.font.SysFont('Arial', 30)
+SIDE_FONT = pygame.font.SysFont('Courier New', 30)
 
 GAME_DIMENSIONS = PixelCoord(600, 600)
 SIDE_DIMENSIONS = PixelCoord(400, 0)
@@ -43,7 +43,19 @@ start_hex = None
 piece_held = None
 valid_moves = None
 
-king_state = ""
+king_state_str = ""
+whose_turn_str = ""
+is_even_ply = True
+
+
+def update_whose_turn():
+    global is_even_ply
+    is_even_ply = HEX_MAP.ply % 2 == 0
+    global whose_turn_str
+    whose_turn_str = "White's Turn" if is_even_ply else "Black's Turn"
+
+
+update_whose_turn()
 
 while True:
     for event in pygame.event.get():
@@ -57,11 +69,18 @@ while True:
 
             if clicked_hex not in HEX_MAP:
                 continue
+
             clicked_state = HEX_MAP[clicked_hex]
 
             if not piece_held:
                 if clicked_state is None:
                     continue
+
+                color = clicked_state[0]
+
+                if not ((is_even_ply and color == "w") or (not is_even_ply and color == "b")):
+                    continue
+
                 piece_held = clicked_state
                 start_hex = clicked_hex
                 valid_moves = HEX_MAP.generate_moves(start_hex)
@@ -72,21 +91,23 @@ while True:
 
                     if HEX_MAP.is_king_checked('w'):
                         if HEX_MAP.is_king_checkmated('w'):
-                            king_state = "White King Checkmated! Black Wins"
+                            king_state_str = "White King Checkmated! Black Wins"
                         else:
-                            king_state = "White King Checked!"
+                            king_state_str = "White King Checked!"
                     elif HEX_MAP.is_king_checked('b'):
                         if HEX_MAP.is_king_checkmated('b'):
-                            king_state = "Black King Checkmated White Wins"
+                            king_state_str = "Black King Checkmated White Wins"
                         else:
-                            king_state = "Black King Checked!"
+                            king_state_str = "Black King Checked!"
                     else:
-                        king_state = ""
+                        king_state_str = ""
+                    update_whose_turn()
 
     SCREEN.fill((255, 255, 255))
     pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), GAME_DIMENSIONS)
 
-    SCREEN.blit(SIDE_FONT.render(king_state, True, (0, 0, 0)), (GAME_WIDTH, 50))
+    SCREEN.blit(SIDE_FONT.render(whose_turn_str, True, (0, 0, 0)), (GAME_WIDTH, 25))
+    SCREEN.blit(SIDE_FONT.render(king_state_str, True, (0, 0, 0)), (GAME_WIDTH, 50))
 
     for cell in HEX_MAP:
         color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
