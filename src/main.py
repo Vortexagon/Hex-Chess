@@ -39,21 +39,23 @@ def draw_piece(cell):
         SCREEN.blit(piece_imgs[cell.state], pixel_coords - PIECE_OFFSET)
 
 
-start_hex = None
-piece_held = None
-valid_moves = None
-
-king_state_str = ""
-whose_turn_str = ""
-is_even_ply = True
-
-
 def update_whose_turn():
     global is_even_ply
     is_even_ply = HEX_MAP.ply % 2 == 0
     global whose_turn_str
     whose_turn_str = "White's Turn" if is_even_ply else "Black's Turn"
 
+
+def write_text(text, coordinates):
+    SCREEN.blit(SIDE_FONT.render(text, True, (0, 0, 0)), coordinates)
+
+
+start_hex = None
+piece_held = None
+valid_moves = None
+is_even_ply = True
+king_state_str = ""
+whose_turn_str = ""
 
 update_whose_turn()
 
@@ -75,7 +77,6 @@ while True:
             if not piece_held:
                 if clicked_state is None:
                     continue
-
                 color = clicked_state[0]
 
                 if not ((is_even_ply and color == "w") or (not is_even_ply and color == "b")):
@@ -104,10 +105,10 @@ while True:
                     update_whose_turn()
 
     SCREEN.fill((255, 255, 255))
-    pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), GAME_DIMENSIONS)
+    pygame.draw.line(SCREEN, (100, 100, 100), (GAME_WIDTH, 0), (GAME_WIDTH, GAME_HEIGHT))
 
-    SCREEN.blit(SIDE_FONT.render(whose_turn_str, True, (0, 0, 0)), (GAME_WIDTH, 25))
-    SCREEN.blit(SIDE_FONT.render(king_state_str, True, (0, 0, 0)), (GAME_WIDTH, 50))
+    write_text(whose_turn_str, (GAME_WIDTH, 25))
+    write_text(king_state_str, (GAME_WIDTH, 50))
 
     for cell in HEX_MAP:
         color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
