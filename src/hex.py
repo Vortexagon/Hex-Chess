@@ -134,7 +134,8 @@ class HexCoord:
 
 
 class HexCell:
-    def __init__(self, coord, state=None):
+    """A class to group a coordinate on the board and it's corresponding state."""
+    def __init__(self, coord: HexCoord, state=None):
         self.coord = coord
         self.state = state
 
