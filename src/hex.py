@@ -1,5 +1,5 @@
 from __future__ import annotations  # Necessary to use the class as a type annotation in its own members.
-from typing import Optional # For T | None annotations.
+from typing import Optional  # For T | None annotations.
 
 import math
 

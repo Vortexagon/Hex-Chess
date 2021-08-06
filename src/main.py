@@ -1,25 +1,27 @@
+from typing import Optional
+
 import pygame
 
-from hex import HexPixelAdapter, HexMap
+from hex import HexPixelAdapter, HexMap, HexCoord, HexCell
 from pixel import PixelCoord
 
 pygame.init()
 
 SIDE_FONT = pygame.font.SysFont('Courier New', 30)
 
-GAME_DIMENSIONS = PixelCoord(600, 600)
-SIDE_DIMENSIONS = PixelCoord(400, 0)
+GAME_DIMENSIONS: PixelCoord = PixelCoord(600, 600)
+SIDE_DIMENSIONS: PixelCoord = PixelCoord(400, 0)
 GAME_WIDTH, GAME_HEIGHT = GAME_DIMENSIONS
-GAME_ORIGIN = GAME_DIMENSIONS / 2
+GAME_ORIGIN: PixelCoord = GAME_DIMENSIONS / 2
 
 SCREEN = pygame.display.set_mode(GAME_DIMENSIONS + SIDE_DIMENSIONS)
-HEX_MAP = HexMap.from_glinski()
-HEX_RADIUS = 30
-HEX_COLORS = [(209, 139, 70), (252, 210, 164), (230, 171, 111)]
-ADAPTER = HexPixelAdapter(GAME_DIMENSIONS, GAME_ORIGIN, HEX_RADIUS)
-PIECE_OFFSET = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
+HEX_MAP: HexMap = HexMap.from_glinski()
+HEX_RADIUS: float = 30
+HEX_COLORS: list[tuple] = [(209, 139, 70), (252, 210, 164), (230, 171, 111)]
+ADAPTER: HexPixelAdapter = HexPixelAdapter(GAME_DIMENSIONS, GAME_ORIGIN, HEX_RADIUS)
+PIECE_OFFSET: PixelCoord = PixelCoord(HEX_RADIUS, HEX_RADIUS) / 2
 
-piece_names = [f"{color}_{name}" for color in "wb" for name in ("pawn", "rook", "knight", "bishop", "king", "queen")]
+piece_names: list[str] = [f"{color}_{name}" for color in "wb" for name in ("pawn", "rook", "knight", "bishop", "king", "queen")]
 piece_imgs = {
     piece_name: pygame.transform.scale(
         pygame.image.load(f"img/{piece_name}.png").convert_alpha(),
@@ -29,13 +31,13 @@ piece_imgs = {
 }
 
 
-def draw_hex(coord, color, fill=False):
+def draw_hex(coord: HexCoord, color: tuple, fill=False):
     pygame.draw.polygon(SCREEN, color, ADAPTER.get_vertices(coord), 0 if fill else 3)
 
 
-def draw_piece(cell):
+def draw_piece(cell: HexCell):
     if cell.state and cell.coord != start_hex:
-        pixel_coords = ADAPTER.hex_to_pixel(cell.coord)
+        pixel_coords: list[PixelCoord] = ADAPTER.hex_to_pixel(cell.coord)
         SCREEN.blit(piece_imgs[cell.state], pixel_coords - PIECE_OFFSET)
 
 
@@ -46,16 +48,16 @@ def update_whose_turn():
     whose_turn_str = "White's Turn" if is_even_ply else "Black's Turn"
 
 
-def write_text(text, coordinates):
+def write_text(text: str, coordinates: tuple[int, int, int]):
     SCREEN.blit(SIDE_FONT.render(text, True, (0, 0, 0)), coordinates)
 
 
-start_hex = None
-piece_held = None
-valid_moves = None
-is_even_ply = True
-king_state_str = ""
-whose_turn_str = ""
+start_hex: Optional[HexCoord] = None
+piece_held: Optional[HexCoord] = None
+valid_moves: Optional[list[HexCoord]] = None
+is_even_ply: bool = True
+king_state_str: str = ""
+whose_turn_str: str = ""
 
 update_whose_turn()
 
@@ -66,18 +68,18 @@ while True:
             exit()
 
         if event.type == pygame.MOUSEBUTTONUP:
-            clicked_pixel = PixelCoord(*pygame.mouse.get_pos())
-            clicked_hex = round(ADAPTER.pixel_to_hex(clicked_pixel))
+            clicked_pixel: PixelCoord = PixelCoord(*pygame.mouse.get_pos())
+            clicked_hex: HexCoord = round(ADAPTER.pixel_to_hex(clicked_pixel))
 
             if clicked_hex not in HEX_MAP:
                 continue
 
-            clicked_state = HEX_MAP[clicked_hex]
+            clicked_state: Optional[str] = HEX_MAP[clicked_hex]
 
             if not piece_held:
                 if clicked_state is None:
                     continue
-                color = clicked_state[0]
+                color: str = clicked_state[0]
 
                 if not ((is_even_ply and color == "w") or (not is_even_ply and color == "b")):
                     continue
@@ -111,12 +113,12 @@ while True:
     write_text(king_state_str, (GAME_WIDTH, 50))
 
     for cell in HEX_MAP:
-        color = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
+        color: tuple[int, int, int] = HEX_COLORS[(cell.coord.q - cell.coord.r) % 3]
         draw_hex(cell.coord, color, fill=True)
 
     if start_hex is not None:
         for coord in valid_moves:
-            color = (255, 50, 50) if HEX_MAP[coord] else (50, 255, 50)
+            color: tuple[int, int, int] = (255, 50, 50) if HEX_MAP[coord] else (50, 255, 50)
             draw_hex(coord, color, fill=True)
 
         draw_hex(start_hex, (50, 50, 255), fill=True)
