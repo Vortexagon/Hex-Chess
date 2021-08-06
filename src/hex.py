@@ -141,25 +141,44 @@ class HexCell:
 
 
 class HexMap:
+    """
+    A wrapper class over the game board.
+    It provides methods to make moves, generate common boards, moves from a coordinate and detect check / checkmate.
+    This class overloads operators like `in` and `[]`.
+    It also overloads native functions like iter() to allow iteration over a board.
+    This provides an easier interface to the board.
+    """
+
     def __init__(self, cells=None):
         if cells is None: cells = dict()
         self.cells = cells
         self.ply = 0
 
     def __iter__(self):
+        """Return an iterator over the `HexCoord`s in the map."""
         return iter(self.cells.values())
 
     def __getitem__(self, item):
+        """Get the state at a specific `HexCoord` in the map."""
         return self.cells[item].state
 
     def __setitem__(self, key, value):
+        """Set the state at a specific `HexCoord` in the map."""
         self.cells[key].state = value
 
     def __contains__(self, item):
+        """
+        Check if a `HexCoord` is within the map.
+        This is useful for out of board checks.
+        """
         return item in self.cells.keys()
 
     @staticmethod
     def from_radius(radius):
+        """
+        Generate a `HexMap` of a certain radius.
+        This provides a useful lemma to build the Glinski variant.
+        """
         cells = dict()
         for p in range(-radius, radius + 1):
             for q in range(-radius, radius + 1):
@@ -171,6 +190,9 @@ class HexMap:
 
     @staticmethod
     def from_glinski():
+        """Generate a `HexMap` of Glinski's Hexagonal Variant."""
+
+        # The coordinates of every piece type in the Glinski variant.
         glinski_pos = {
             "w_pawn": [(-n, -1, n + 1) for n in range(5)] + [(n, -n - 1, 1) for n in range(5)],
             "w_rook": [(-3, -2, 5), (3, -5, 2)],
@@ -187,8 +209,10 @@ class HexMap:
             "b_king": [(1, 4, -5)],
         }
 
+        # Generate an initial foundation board.
         initial_map = HexMap.from_radius(5)
 
+        # Add all the pieces onto the board, following Glinski layout.
         for key, pos_list in glinski_pos.items():
             for pos in pos_list:
                 initial_map[HexCoord(*pos)] = key
@@ -196,50 +220,87 @@ class HexMap:
         return initial_map
 
     def generate_moves(self, start: HexCoord):
+        """
+        Generates all moves from a specified start coord.
+        It travels along predefined vectors and checks certain conditions about whether it should stop.
+        """
+
         start_state = self[start]
+
+        # If there is nothing at the coord, there are no moves logically available to make.
         if start_state is None:
             return []
 
+        # A piece can always move back to where it started.
         valid_moves = [start]
 
         for ray in move_vectors[start_state]:
+
+            # Convert the 3-tuple into a `HexCoord` to take advantage of its overloaded operators and methods.
             ray = HexCoord(*ray)
             curr_hex = start
 
             while True:
+
+                # Travel one along the vector.
                 curr_hex += ray
+
+                # Is the coord I'm at out of bounds? If so, stop moving along this line.
                 if curr_hex not in self:
                     break
+
+                # If the piece at the coord is the same colour as me, stop moving along this line.
                 if self[curr_hex] is not None and self[curr_hex][0] == start_state[0]:
                     break
+
+                # If the king is in check after this move:
                 if self.is_king_checked_after_move(start_state[0], start, curr_hex):
+                    # King, Pawn and Knight are not sliding pieces, so they must check the next vector immediately.
                     if start_state[2:] in ["king", "pawn", "knight"]:
                         break
+                    # Every other piece is a sliding piece, so we can still check along this line for moves.
                     else:
                         continue
+
+                # Special handling for the quirks of the pawn pieces
                 if start_state.endswith("pawn"):
                     offset = curr_hex - start
                     if start_state[0] == "w":
+
+                        # If the offset is a 'diagonal' attack move but there's nothing there to attack:
                         if offset in [HexCoord(-1, 1, 0), HexCoord(1, 0, -1)] and self[curr_hex] is None:
                             break
+
+                        # If the offset is a 'forward' normal move but there's an enemy piece in the way:
                         if offset == HexCoord(0, 1, -1) and self[curr_hex] is not None:
                             break
                     elif start_state[0] == "b":
+
+                        # If the offset is a 'diagonal' attack move but there's nothing there to attack:
                         if offset in [HexCoord(-1, 0, 1), HexCoord(1, -1, 0)] and self[curr_hex] is None:
                             break
+
+                        # If the offset is a 'forward' normal move but there's an enemy piece in the way:
                         if offset == HexCoord(0, -1, 1) and self[curr_hex] is not None:
                             break
 
+                # The move passed all checks, so add it to the valid moves list.
                 valid_moves.append(curr_hex)
 
+                # If this is true, it must be the case that there is an enemy piece, so we can't travel any further
+                # along this vector.
                 if self[curr_hex] is not None:
                     break
+
+                # King, Pawn and Knight can only move along their vectors once: they are not sliding pieces.
+                # This will run on the first loop of any vector, stopping sliding behaviour for them.
                 if start_state[2:] in ["king", "pawn", "knight"]:
                     break
 
         return valid_moves
 
     def cells_with_state_col(self, color):
+        """Return all cells that have a piece of specified colour."""
         valid_cells = []
         for cell in self:
             if cell.state is not None and cell.state.startswith(color):
@@ -247,6 +308,7 @@ class HexMap:
         return valid_cells
 
     def make_move(self, start, end):
+        """Performs the move from `start` to `end`. Handles ply incrementing and piece movement."""
         if start == end:
             return
 
@@ -256,50 +318,88 @@ class HexMap:
         self.ply += 1
 
     def is_king_checked(self, color):
+        """Checks if a king of specified colour is in check right now."""
+
+        # The coordinate that the king is on must be found, to check enemy moves against.
         king_coords = None
         for cell in self:
             if cell.state == f"{color}_king":
                 king_coords = cell.coord
 
+        # Iterate over the cells dictionary, over key-pair values.
         for coord, cell in self.cells.items():
+
+            # If there is nothing at that cell, there is no need to check if it can threaten the king.
             if cell.state is None:
                 continue
+
+            # If the piece is of the same colour as the king, it is certain not to threaten it.
             if cell.state[0] == color:
                 continue
+
+            # This piece must certainly now be an enemy piece, so iterate over its 'move vectors':
             for ray in move_vectors[cell.state]:
+                # Convert the 3-tuple into a `HexCoord` to take advantage of its overloaded operators and methods.
                 ray = HexCoord(*ray)
                 curr_hex = cell.coord
 
                 while True:
+
+                    # Travel one along the vector.
                     curr_hex += ray
 
+                    # Is the coord I'm at out of bounds? If so, stop moving along this line.
                     if curr_hex not in self:
                         break
+
+                    # If the piece at the coord is the same colour as me, stop moving along this line.
                     if self[curr_hex] is not None and self[curr_hex][0] == cell.state[0]:
                         break
+
+                    # Special handling for the quirks of the pawn pieces
                     if cell.state.endswith("pawn"):
                         offset = curr_hex - cell.coord
+
+                        # We only need to check that the offset is an attack, since pawns cannot threaten forwards.
                         if cell.state[0] == "w":
                             if offset not in [HexCoord(-1, 1, 0), HexCoord(1, 0, -1)]:
                                 break
                         elif cell.state[0] == "b":
                             if offset not in (HexCoord(-1, 0, 1), HexCoord(1, -1, 0)):
                                 break
+
+                    # The move passed all checks, so if it threatens the king, the king is in check.
                     if curr_hex == king_coords:
                         return True
+
+                    # If this is true, it must be the case that its an enemy piece other than the king, so we can't
+                    # travel any further along this vector.
                     elif self[curr_hex] is not None:
                         break
+
+                    # King, Pawn and Knight can only move along their vectors once: they are not sliding pieces.
+                    # This will run on the first loop of any vector, stopping sliding behaviour for them.
                     elif cell.state[2:] in ["king", "pawn", "knight"]:
                         break
+
+        # The king is not in check.
         return False
 
     def is_king_checkmated(self, color):
+        """Checks if a king of specified colour is checkmated."""
+
+        # If the king isn't even checked, there's no need checking for checkmate.
         if self.is_king_checked(color):
+
+            # If none of the pieces can make moves other than move back to start, that must be because they don't get
+            # the king out of check. Hence, the king is helpless and checkmated.
             if all(len(self.generate_moves(cell.coord)) == 1 for cell in self.cells_with_state_col(color)):
                 return True
         return False
 
     def is_king_checked_after_move(self, color, start, end):
+        """Checks if a king of specified colour will be in check after a move."""
+
         prev_state = self[end]
         self.make_move(start, end)
         result = self.is_king_checked(color)
