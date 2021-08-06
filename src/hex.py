@@ -414,31 +414,31 @@ class HexMap:
 
 class HexPixelAdapter:
     """A class which provides helper methods to convert between `PixelCoord`s and `HexCoord`s easily."""
-    def __init__(self, dimensions, origin, hex_radius):
-        self.dimensions = dimensions
-        self.origin = origin
-        self.hex_radius = hex_radius
+    def __init__(self, dimensions: PixelCoord, origin: PixelCoord, hex_radius: float):
+        self.dimensions: PixelCoord = dimensions
+        self.origin: PixelCoord = origin
+        self.hex_radius: float = hex_radius
 
-    def hex_to_pixel(self, coord):
+    def hex_to_pixel(self, coord: HexCoord) -> PixelCoord:
         """Converts from a `HexCoord` to a `PixelCoord`."""
-        x = self.hex_radius * 1.5 * coord.p + self.origin.x
-        y = self.hex_radius * (math.sqrt(3) * 0.5 * coord.p + math.sqrt(3) * coord.r) + self.origin.y
+        x: float = self.hex_radius * 1.5 * coord.p + self.origin.x
+        y: float = self.hex_radius * (math.sqrt(3) * 0.5 * coord.p + math.sqrt(3) * coord.r) + self.origin.y
 
         return PixelCoord(x, y)
 
-    def pixel_to_hex(self, coord):
+    def pixel_to_hex(self, coord: PixelCoord) -> HexCoord:
         """Converts from a `PixelCoord` to a `HexCoord`."""
         coord -= self.origin
 
-        p = 2 / 3 * coord.x / self.hex_radius
-        r = (-1 / 3 * coord.x + math.sqrt(3) / 3 * coord.y) / self.hex_radius
+        p: float = 2 / 3 * coord.x / self.hex_radius
+        r: float = (-1 / 3 * coord.x + math.sqrt(3) / 3 * coord.y) / self.hex_radius
 
         return HexCoord(p, -p - r, r)
 
-    def get_vertices(self, coord):
+    def get_vertices(self, coord: HexCoord) -> list[PixelCoord]:
         """Gets the `PixelCoord` vertices of a hex at any `HexCoord`."""
         x, y = self.hex_to_pixel(coord)
-        angle = math.pi / 3
+        angle: float = math.pi / 3
 
         return [PixelCoord(
             self.hex_radius * math.cos(angle * i) + x,
