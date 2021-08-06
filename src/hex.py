@@ -58,28 +58,41 @@ move_vectors = {
 
 
 class HexCoord:
+    """
+    A wrapper class over the concept of a hexagonal coordinate.
+    The class provides operator overloads such as +, -, * and /, as well as == and !=.
+    The class also provides native function overloads like round(), hash() and abs().
+    This allows a Pythonic interface with hexagonal geometry.
+    """
+
     def __init__(self, p, q, r):
         self.p, self.q, self.r = p, q, r
 
     def __add__(self, other):
+        """Vector addition between two HexCoords."""
         return HexCoord(self.p + other.p, self.q + other.q, self.r + other.r)
 
     def __sub__(self, other):
+        """Vector subtraction between two HexCoords."""
         return HexCoord(self.p - other.p, self.q - other.q, self.r - other.r)
 
     def __mul__(self, other):
+        """Vector multiplication by a scalar"""
         return HexCoord(self.p * other, self.q * other, self.r * other)
 
     def __truediv__(self, other):
+        """Vector division by a scalar."""
         return HexCoord(self.p / other, self.q / other, self.r / other)
 
     def __eq__(self, other):
+        """Component-wise equality check."""
         if type(other) is not type(self):
             return False
 
         return self.p == other.p and self.q == other.q and self.r == other.r
 
     def __round__(self, n=None):
+        """Round to the HexCoord that this coordinate is in."""
         rp = round(self.p)
         rq = round(self.q)
         rr = round(self.r)
@@ -100,15 +113,22 @@ class HexCoord:
         return HexCoord(rp, rq, rr)
 
     def __str__(self):
+        """A user-friendly representation."""
         return f"({self.p}, {self.q}, {self.r})"
 
     def __hash__(self):
+        """Unique hashing that takes into account order of values."""
         return hash((self.p, self.q, self.r))
 
     def __abs__(self):
+        """
+        Map each coordinate to their absolute values.
+        Not guaranteed to be a valid Hex Coordinate geometrically afterwards.
+        """
         return HexCoord(abs(self.p), abs(self.q), abs(self.r))
 
     def __iter__(self):
+        """Return an iterator over the coordinate's components."""
         return iter([self.p, self.q, self.r])
 
 
