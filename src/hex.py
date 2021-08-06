@@ -1,3 +1,4 @@
+from __future__ import annotations  # Necessary to use the class as a type annotation in its own members.
 import math
 
 from pixel import PixelCoord
@@ -65,33 +66,33 @@ class HexCoord:
     This allows a Pythonic interface with hexagonal geometry.
     """
 
-    def __init__(self, p, q, r):
+    def __init__(self, p: float, q: float, r: float):
         self.p, self.q, self.r = p, q, r
 
-    def __add__(self, other):
+    def __add__(self, other: HexCoord) -> HexCoord:
         """Vector addition between two HexCoords."""
         return HexCoord(self.p + other.p, self.q + other.q, self.r + other.r)
 
-    def __sub__(self, other):
+    def __sub__(self, other: HexCoord) -> HexCoord:
         """Vector subtraction between two HexCoords."""
         return HexCoord(self.p - other.p, self.q - other.q, self.r - other.r)
 
-    def __mul__(self, other):
+    def __mul__(self, other: float) -> HexCoord:
         """Vector multiplication by a scalar"""
         return HexCoord(self.p * other, self.q * other, self.r * other)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: float) -> HexCoord:
         """Vector division by a scalar."""
         return HexCoord(self.p / other, self.q / other, self.r / other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: HexCoord) -> bool:
         """Component-wise equality check."""
         if type(other) is not type(self):
             return False
 
         return self.p == other.p and self.q == other.q and self.r == other.r
 
-    def __round__(self, n=None):
+    def __round__(self, n=None) -> HexCoord:
         """Round to the HexCoord that this coordinate is in."""
         rp = round(self.p)
         rq = round(self.q)
@@ -112,22 +113,22 @@ class HexCoord:
 
         return HexCoord(rp, rq, rr)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """A user-friendly representation."""
         return f"({self.p}, {self.q}, {self.r})"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Unique hashing that takes into account order of values."""
         return hash((self.p, self.q, self.r))
 
-    def __abs__(self):
+    def __abs__(self) -> HexCoord:
         """
         Map each coordinate to their absolute values.
         Not guaranteed to be a valid Hex Coordinate geometrically afterwards.
         """
         return HexCoord(abs(self.p), abs(self.q), abs(self.r))
 
-    def __iter__(self):
+    def __iter__(self) -> iter:
         """Return an iterator over the coordinate's components."""
         return iter([self.p, self.q, self.r])
 
