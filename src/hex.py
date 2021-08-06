@@ -413,18 +413,21 @@ class HexMap:
 
 
 class HexPixelAdapter:
+    """A class which provides helper methods to convert between `PixelCoord`s and `HexCoord`s easily."""
     def __init__(self, dimensions, origin, hex_radius):
         self.dimensions = dimensions
         self.origin = origin
         self.hex_radius = hex_radius
 
     def hex_to_pixel(self, coord):
+        """Converts from a `HexCoord` to a `PixelCoord`."""
         x = self.hex_radius * 1.5 * coord.p + self.origin.x
         y = self.hex_radius * (math.sqrt(3) * 0.5 * coord.p + math.sqrt(3) * coord.r) + self.origin.y
 
         return PixelCoord(x, y)
 
     def pixel_to_hex(self, coord):
+        """Converts from a `PixelCoord` to a `HexCoord`."""
         coord -= self.origin
 
         p = 2 / 3 * coord.x / self.hex_radius
@@ -433,6 +436,7 @@ class HexPixelAdapter:
         return HexCoord(p, -p - r, r)
 
     def get_vertices(self, coord):
+        """Gets the `PixelCoord` vertices of a hex at any `HexCoord`."""
         x, y = self.hex_to_pixel(coord)
         angle = math.pi / 3
 
