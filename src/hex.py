@@ -152,7 +152,8 @@ class HexMap:
     """
 
     def __init__(self, cells=None):
-        if cells is None: cells = dict()
+        if cells is None:
+            cells = dict()
         self.cells = cells
         self.ply: int = 0
 
@@ -309,15 +310,16 @@ class HexMap:
                 valid_cells.append(cell)
         return valid_cells
 
-    def make_move(self, start: HexCoord, end: HexCoord):
+    def make_move(self, start: HexCoord, end: HexCoord) -> bool:
         """Performs the move from `start` to `end`. Handles ply incrementing and piece movement."""
         if start == end:
-            return
+            return False
 
         self[end] = self[start]
         self[start] = None
 
         self.ply += 1
+        return True
 
     def is_king_checked(self, color: str) -> bool:
         """Checks if a king of specified colour is in check right now."""
