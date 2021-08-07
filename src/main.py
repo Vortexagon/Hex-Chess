@@ -2,6 +2,7 @@ from typing import Optional
 
 import pygame
 
+from ai import AI
 from hex import HexPixelAdapter, HexMap, HexCoord, HexCell
 from pixel import PixelCoord
 
@@ -108,6 +109,8 @@ while True:
                 if clicked_hex in valid_moves:
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
+                    if HEX_MAP.ply % 2:
+                        AI.move(HEX_MAP)
 
                     # Update the king check / checkmate status string.
                     if HEX_MAP.is_king_checked('w'):
