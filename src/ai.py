@@ -58,4 +58,4 @@ class AI:
 
     @staticmethod
     def evaluate(hex_map: HexMap) -> float:
-        return 0
+        return len(hex_map.cells_with_state_col("b")) - len(hex_map.cells_with_state_col("w"))
