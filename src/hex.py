@@ -119,6 +119,10 @@ class HexCoord:
         """A user-friendly representation."""
         return f"({self.p}, {self.q}, {self.r})"
 
+    def __repr__(self):
+        """A coder's representation."""
+        return f"HexCoord({self.p}, {self.q}, {self.r})"
+
     def __hash__(self) -> int:
         """Unique hashing that takes into account order of values."""
         return hash((self.p, self.q, self.r))
