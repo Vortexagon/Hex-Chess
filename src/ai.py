@@ -30,3 +30,4 @@ class AI:
                         best_move = (cell.coord, coord)
 
         hex_map.make_move(*best_move)
+        return best_move
