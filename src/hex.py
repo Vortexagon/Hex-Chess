@@ -317,6 +317,12 @@ class HexMap:
                 valid_cells.append(cell)
         return valid_cells
 
+    def moves_for_col(self, color: str) -> tuple[HexCoord, HexCoord]:
+        for cell in self.cells_with_state_col(color):
+            for coord in self.generate_moves(cell.coord):
+                if cell.coord != coord:
+                    yield cell.coord, coord
+
     def make_move(self, start: HexCoord, end: HexCoord) -> bool:
         """Performs the move from `start` to `end`. Handles ply incrementing and piece movement."""
         if start == end:
