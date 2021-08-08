@@ -134,6 +134,9 @@ class HexCoord:
         """Return an iterator over the coordinate's components."""
         return iter([self.p, self.q, self.r])
 
+    def mag(self) -> float:
+        return math.sqrt(self.p**2 + self.q**2 + self.r**2)
+
 
 class HexCell:
     """A class to group a coordinate on the board and it's corresponding state."""
