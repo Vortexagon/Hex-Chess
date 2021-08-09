@@ -36,7 +36,7 @@ class AI:
 
             prev_state = hex_map[end]
             hex_map.make_move(start, end)
-            result: float = AI.minimax(hex_map, 0, False)
+            result: float = AI.minimax(hex_map, 0, -math.inf, math.inf, False)
             hex_map.make_move(end, start)
             hex_map[end] = prev_state
 
@@ -48,7 +48,7 @@ class AI:
         return best_move
 
     @staticmethod
-    def minimax(hex_map: HexMap, depth: int, maximising: bool) -> float:
+    def minimax(hex_map: HexMap, depth: int, alpha: int, beta: int, maximising: bool) -> float:
         """
         Performs a minimax search down to a hardcoded depth.
         Will handle optimisations and heuristics.
@@ -63,22 +63,27 @@ class AI:
         final_score: float = math.inf * (-1) ** maximising
 
         def capture_score(move: tuple[HexCoord, HexCoord]) -> int:
-            value = AI.capture_values[hex_map[move[1]]]
-            return value
+            return AI.capture_values[hex_map[move[1]]]
 
-        moves = sorted(hex_map.moves_for_col("b" if maximising else "w"), key=capture_score, reverse=True)
+        moves = sorted(hex_map.moves_for_col("b" if maximising else "w"), key=capture_score, reverse=maximising)
         for (start, end) in moves:
 
             prev_state = hex_map[end]
             hex_map.make_move(start, end)
-            result: float = AI.minimax(hex_map, depth + 1, not maximising)
+            result: float = AI.minimax(hex_map, depth + 1, alpha, beta, not maximising)
             hex_map.make_move(end, start)
             hex_map[end] = prev_state
 
             if maximising:
                 final_score = max(result, final_score)
+                alpha = max(alpha, result)
+                if beta <= final_score:
+                    break
             else:
                 final_score = min(result, final_score)
+                beta = min(alpha, result)
+                if alpha >= final_score:
+                    break
 
         return final_score
 
