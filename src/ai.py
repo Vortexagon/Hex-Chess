@@ -5,6 +5,24 @@ from hex import HexMap, HexCoord
 
 
 class AI:
+    capture_values = {
+        None: 0,
+
+        "w_pawn": 10,
+        "w_rook": 40,
+        "w_king": 150,
+        "w_bishop": 40,
+        "w_knight": 40,
+        "w_queen": 250,
+
+        "b_pawn": -10,
+        "b_rook": -40,
+        "b_king": -150,
+        "b_bishop": -40,
+        "b_knight": -40,
+        "b_queen": -250,
+    }
+
     @staticmethod
     def move(hex_map: HexMap) -> tuple[HexCoord, HexCoord]:
         """
@@ -44,7 +62,12 @@ class AI:
         # Infinity for the minimiser
         final_score: float = math.inf * (-1) ** maximising
 
-        for (start, end) in hex_map.moves_for_col("b" if maximising else "w"):
+        def capture_score(move: tuple[HexCoord, HexCoord]) -> int:
+            value = AI.capture_values[hex_map[move[1]]]
+            return value
+
+        moves = sorted(hex_map.moves_for_col("b" if maximising else "w"), key=capture_score, reverse=True)
+        for (start, end) in moves:
 
             prev_state = hex_map[end]
             hex_map.make_move(start, end)
