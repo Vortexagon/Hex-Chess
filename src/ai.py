@@ -65,7 +65,9 @@ class AI:
         def capture_score(move: tuple[HexCoord, HexCoord]) -> int:
             return AI.capture_values[hex_map[move[1]]]
 
-        moves = sorted(hex_map.moves_for_col("b" if maximising else "w"), key=capture_score, reverse=maximising)
+        moves = hex_map.moves_for_col("b" if maximising else "w")
+        moves = sorted(moves, key=capture_score, reverse=maximising)
+
         for (start, end) in moves:
 
             prev_state = hex_map[end]
@@ -89,4 +91,15 @@ class AI:
 
     @staticmethod
     def evaluate(hex_map: HexMap) -> float:
-        return len(hex_map.cells_with_state_col("b")) - len(hex_map.cells_with_state_col("w"))
+        if hex_map.is_king_checked("w"):
+            if hex_map.is_king_checkmated("w"):
+                return 1000
+            else:
+                return 500
+        elif hex_map.is_king_checked("b"):
+            if hex_map.is_king_checkmated("b"):
+                return -1000
+            else:
+                return -500
+        else:
+            return (len(hex_map.cells_with_state_col("b")) - len(hex_map.cells_with_state_col("w"))) * 40
