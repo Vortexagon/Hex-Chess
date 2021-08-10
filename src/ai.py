@@ -3,7 +3,6 @@ from typing import Optional
 
 from hex import HexMap, HexCoord
 
-
 class AI:
     capture_values = {
         None: 0,
@@ -22,13 +21,14 @@ class AI:
         "b_knight": -40,
         "b_queen": -250,
     }
+    searched = 0
 
     @staticmethod
     def move(hex_map: HexMap) -> tuple[HexCoord, HexCoord]:
         """
         Makes a move on the board, as Black, by calling a minimax search.
         """
-
+        AI.searched = 0
         best_score: float = -math.inf
         best_move: Optional[tuple] = None
 
@@ -45,16 +45,18 @@ class AI:
                 best_move = (start, end)
 
         hex_map.make_move(*best_move)
+        print(AI.searched)
         return best_move
 
     @staticmethod
     def minimax(hex_map: HexMap, depth: int, alpha: int, beta: int, maximising: bool) -> float:
+        AI.searched += 1
         """
         Performs a minimax search down to a hardcoded depth.
         Will handle optimisations and heuristics.
         """
         # Add a limit on how far down to search.
-        if depth >= 1:
+        if depth >= 0:
             return AI.evaluate(hex_map)
 
         # This will make the initial score:
@@ -63,7 +65,11 @@ class AI:
         final_score: float = math.inf * (-1) ** maximising
 
         def capture_score(move: tuple[HexCoord, HexCoord]) -> int:
-            return AI.capture_values[hex_map[move[1]]]
+            value = AI.capture_values[hex_map[move[1]]]
+            if value:
+                return value
+            else:
+                return AI.evaluate(hex_map)
 
         moves = hex_map.moves_for_col("b" if maximising else "w")
         moves = sorted(moves, key=capture_score, reverse=maximising)
