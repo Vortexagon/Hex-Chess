@@ -97,15 +97,5 @@ class AI:
 
     @staticmethod
     def evaluate(hex_map: HexMap) -> float:
-        if hex_map.is_king_checked("w"):
-            if hex_map.is_king_checkmated("w"):
-                return 1000
-            else:
-                return 500
-        elif hex_map.is_king_checked("b"):
-            if hex_map.is_king_checkmated("b"):
-                return -1000
-            else:
-                return -500
-        else:
-            return (len(hex_map.cells_with_state_col("b")) - len(hex_map.cells_with_state_col("w"))) * 40
+        sum_vals = lambda cell: AI.capture_values[cell.state]
+        return -sum(map(sum_vals, hex_map.cells_with_state_col("w"))) - sum(map(sum_vals, hex_map.cells_with_state_col("b")))
