@@ -3,6 +3,7 @@ from typing import Optional
 
 from hex import HexMap, HexCoord
 
+
 class AI:
     capture_values = {
         None: 0,
@@ -49,15 +50,15 @@ class AI:
         return best_move
 
     @staticmethod
-    def minimax(hex_map: HexMap, depth: int, alpha: int, beta: int, maximising: bool) -> float:
+    def minimax(hex_map: HexMap, depth: int, alpha: float, beta: float, maximising: bool) -> float:
         AI.searched += 1
         """
         Performs a minimax search down to a hardcoded depth.
         Will handle optimisations and heuristics.
         """
         # Add a limit on how far down to search.
-        if depth >= 0:
-            return AI.evaluate(hex_map)
+        if depth >= 1:
+            return evaluate(hex_map)
 
         # This will make the initial score:
         # -Infinity for the maximiser
@@ -65,11 +66,7 @@ class AI:
         final_score: float = math.inf * (-1) ** maximising
 
         def capture_score(move: tuple[HexCoord, HexCoord]) -> int:
-            value = AI.capture_values[hex_map[move[1]]]
-            if value:
-                return value
-            else:
-                return AI.evaluate(hex_map)
+            return AI.capture_values[hex_map[move[0]]] + AI.capture_values[hex_map[move[1]]]
 
         moves = hex_map.moves_for_col("b" if maximising else "w")
         moves = sorted(moves, key=capture_score, reverse=maximising)
@@ -95,7 +92,9 @@ class AI:
 
         return final_score
 
-    @staticmethod
-    def evaluate(hex_map: HexMap) -> float:
-        sum_vals = lambda cell: AI.capture_values[cell.state]
-        return -sum(map(sum_vals, hex_map.cells_with_state_col("w"))) - sum(map(sum_vals, hex_map.cells_with_state_col("b")))
+
+def evaluate(hex_map: HexMap) -> float:
+    map_to_vals = lambda cell: AI.capture_values[cell.state]
+    sum_vals = lambda col: sum(map(map_to_vals, hex_map.cells_with_state_col(col)))
+
+    return -(sum_vals("b") + sum_vals("w"))

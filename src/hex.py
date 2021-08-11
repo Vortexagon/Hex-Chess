@@ -323,16 +323,15 @@ class HexMap:
                 if cell.coord != coord:
                     yield cell.coord, coord
 
-    def make_move(self, start: HexCoord, end: HexCoord) -> bool:
+    def make_move(self, start: HexCoord, end: HexCoord):
         """Performs the move from `start` to `end`. Handles ply incrementing and piece movement."""
         if start == end:
-            return False
+            return
 
         self[end] = self[start]
         self[start] = None
 
         self.ply += 1
-        return True
 
     def is_king_checked(self, color: str) -> bool:
         """Checks if a king of specified colour is in check right now."""
