@@ -1,3 +1,6 @@
+import math
+
+
 class PixelCoord:
     def __init__(self, x, y):
         self.x = x
@@ -32,3 +35,6 @@ class PixelCoord:
 
     def __len__(self):
         return 2
+
+    def mag(self) -> float:
+        return math.sqrt(self.x**2 + self.y**2)

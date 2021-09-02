@@ -2,6 +2,7 @@ from typing import Optional
 
 import pygame
 
+from ai import AI
 from hex import HexPixelAdapter, HexMap, HexCoord, HexCell
 from pixel import PixelCoord
 
@@ -41,7 +42,12 @@ def draw_hex(coord: HexCoord, color: tuple, fill=False):
 
 def draw_piece(cell: HexCell):
     """Draws a piece to the screen."""
-    if cell.state and cell.coord != start_hex:
+    if cell.state is not None:
+        # Don't draw the piece if it's in a user move, or an AI move.
+        if cell.coord == start_hex:
+            return
+        elif is_ai_sprite_moving and cell.coord == ai_end_hex:
+            return
         pixel_coords: PixelCoord = ADAPTER.hex_to_pixel(cell.coord)
         SCREEN.blit(piece_imgs[cell.state], pixel_coords - PIECE_OFFSET)
 
@@ -65,6 +71,13 @@ valid_moves: Optional[list[HexCoord]] = None  # This stores the valid moves of t
 is_even_ply: bool = True  # Whether the current game ply is even or not.
 king_state_str: str = ""  # A messsage on the check state of either king.
 whose_turn_str: str = ""  # A message on whose side's turn it is.
+
+is_ai_sprite_moving: bool = False  # Whether the AI sprite is moving across the board.
+ai_start_hex: Optional[HexCoord] = None  # The `HexCoord` of the start of the AI's move.
+ai_end_hex: Optional[HexCoord] = None  # The `HexCoord` of the end of the AI's move.
+ai_curr_pixel: Optional[PixelCoord] = None  # The `PixelCoord` of the sprites current position
+ai_end_pixel: Optional[PixelCoord] = None  # The `PixelCoord` of the end of the AI's move, also the sprites end point.
+ai_sprite_state: Optional[str] = None  # The state of the piece that the AI moved.
 
 update_whose_turn()
 
@@ -108,6 +121,13 @@ while True:
                 if clicked_hex in valid_moves:
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
+                    if HEX_MAP.ply % 2:
+                        ai_start_hex, ai_end_hex = AI.move(HEX_MAP)
+                        ai_curr_pixel = ADAPTER.hex_to_pixel(ai_start_hex) - PIECE_OFFSET
+                        ai_end_pixel = ADAPTER.hex_to_pixel(ai_end_hex) - PIECE_OFFSET
+                        ai_sprite_state = HEX_MAP[ai_end_hex]
+
+                        is_ai_sprite_moving = True
 
                     # Update the king check / checkmate status string.
                     if HEX_MAP.is_king_checked('w'):
@@ -143,6 +163,11 @@ while True:
 
         draw_hex(start_hex, (50, 50, 255), fill=True)
 
+    # Color the cell that the AI just moved from, red.
+    # Makes it easier to see what move the AI made.
+    if ai_start_hex is not None:
+        draw_hex(ai_start_hex, (200, 100, 100), fill=True)
+
     # Draw the pieces, and then the black wireframe.
     for cell in HEX_MAP:
         draw_piece(cell)
@@ -151,5 +176,19 @@ while True:
     # If we're holding a piece, hover it under our mouse.
     if piece_held:
         SCREEN.blit(piece_imgs[piece_held], pygame.mouse.get_pos())
+
+    # If the AI sprite is moving across the screen
+    if is_ai_sprite_moving:
+        SCREEN.blit(piece_imgs[ai_sprite_state], ai_curr_pixel)
+        offset = ai_end_pixel - ai_curr_pixel
+
+        # Move the piece's position a fifth closer to the end.
+        ai_curr_pixel += offset * 0.2
+
+        # If this isn't added, the piece would keep moving smaller and smaller amounts.
+        # Moving would never finish.
+        # So there's a minimum distance from which we say the move has now finished.
+        if offset.mag() < 1:
+            is_ai_sprite_moving = False
 
     pygame.display.flip()
