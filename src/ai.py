@@ -1,5 +1,4 @@
 import math
-from copy import copy
 from typing import Optional
 
 from hex import HexMap, HexCoord
@@ -24,14 +23,12 @@ class AI:
         "b_queen": -250,
     }
     cache = dict()
-    searched = 0
 
     @staticmethod
     def move(hex_map: HexMap) -> tuple[HexCoord, HexCoord]:
         """
         Makes a move on the board, as Black, by calling a minimax search.
         """
-        AI.searched = 0
         best_score: float = -math.inf
         best_move: Optional[tuple] = None
 
@@ -52,12 +49,11 @@ class AI:
 
     @staticmethod
     def minimax(hex_map: HexMap, depth: int, alpha: float, beta: float, maximising: bool) -> float:
-        AI.searched += 1
         """
         Performs a minimax search down to a variable depth.
         Will handle optimisations and heuristics.
         """
-        state_hash = copy(hex_map.__str__())
+        state_hash = hash(hex_map.__str__())
         if state_hash in AI.cache:
             return AI.cache[state_hash]
 
