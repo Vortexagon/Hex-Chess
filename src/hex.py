@@ -1,5 +1,8 @@
 from __future__ import annotations  # Necessary to use the class as a type annotation in its own members.
+
+import copy
 from typing import Optional  # For T | None annotations.
+from typing import Union
 
 import math
 
@@ -161,27 +164,67 @@ class HexMap:
     def __init__(self, cells=None):
         if cells is None:
             cells = dict()
-        self.cells = cells
+        self.cells: dict[int, HexCell] = cells
+        self.coord_to_cell_registry: dict[HexCoord, int] = dict()
         self.ply: int = 0
+
+        self.__hash__ = self.__str__
 
     def __iter__(self):
         """Return an iterator over the `HexCoord`s in the map."""
         return iter(self.cells.values())
 
-    def __getitem__(self, item: HexCoord) -> Optional[str]:
+    def __getitem__(self, item: Union[int, HexCoord]) -> Optional[str]:
         """Get the state at a specific `HexCoord` in the map."""
-        return self.cells[item].state
+        if type(item) is HexCoord:
+            return self.cells[self.coord_to_cell_registry[item]].state
+        elif type(item) is int:
+            return self.cells[item].state
 
-    def __setitem__(self, key: HexCoord, value: Optional[str]):
+    def __setitem__(self, key: Union[int, HexCoord], value: Optional[str]):
         """Set the state at a specific `HexCoord` in the map."""
-        self.cells[key].state = value
+        if type(key) is HexCoord:
+            self.cells[self.coord_to_cell_registry[key]].state = value
+        elif type(key) is int:
+            self.cells[key].state = value
 
     def __contains__(self, item: HexCoord) -> bool:
         """
         Check if a `HexCoord` is within the map.
         This is useful for out of board checks.
         """
-        return item in self.cells.keys()
+        if type(item) is HexCoord:
+            return item in self.coord_to_cell_registry.keys()
+        elif type(item) is int:
+            return item in self.cells.keys()
+
+    def __str__(self) -> str:
+        FEN_dict = {
+            None: "x",
+
+            "w_pawn": "p",
+            "b_pawn": "P",
+
+            "w_rook": "r",
+            "b_rook": "R",
+
+            "w_king": "k",
+            "b_king": "K",
+
+            "w_bishop": "b",
+            "b_bishop": "B",
+
+            "w_queen": "q",
+            "b_queen": "Q",
+
+            "w_knight": "n",
+            "b_knight": "N"
+        }
+
+        hash_str = ""
+        for i in range(91):
+            hash_str += FEN_dict[self[i]]
+        return hash_str
 
     @staticmethod
     def from_radius(radius: int) -> HexMap:
@@ -189,14 +232,17 @@ class HexMap:
         Generate a `HexMap` of a certain radius.
         This provides a useful lemma to build the Glinski variant.
         """
-        cells = dict()
+        hex_map = HexMap()
+        i = 0
         for p in range(-radius, radius + 1):
             for q in range(-radius, radius + 1):
                 for r in range(-radius, radius + 1):
                     if p + q + r == 0:
                         coord = HexCoord(p, q, r)
-                        cells[coord] = HexCell(coord)
-        return HexMap(cells)
+                        hex_map.coord_to_cell_registry[copy.deepcopy(coord)] = i
+                        hex_map.cells[i] = HexCell(coord)
+                        i += 1
+        return hex_map
 
     @staticmethod
     def from_glinski() -> HexMap:
