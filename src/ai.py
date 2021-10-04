@@ -82,8 +82,8 @@ class AI:
 
             if maximising:
                 final_score = max(result, final_score)
-            else:
                 alpha = max(alpha, result)
+            else:
                 final_score = min(result, final_score)
                 beta = min(beta, result)
 
