@@ -57,7 +57,7 @@ def update_whose_turn():
     global is_even_ply
     is_even_ply = HEX_MAP.ply % 2 == 0
     global whose_turn_str
-    whose_turn_str = "White's Turn" if is_even_ply else "Black's Turn"
+    whose_turn_str = "Your (White's) Turn!" if is_even_ply else "Black is Thinking ..."
 
 
 def write_text(text: str, coordinates: tuple[int, int, int]):
@@ -78,6 +78,8 @@ ai_end_hex: Optional[HexCoord] = None  # The `HexCoord` of the end of the AI's m
 ai_curr_pixel: Optional[PixelCoord] = None  # The `PixelCoord` of the sprites current position
 ai_end_pixel: Optional[PixelCoord] = None  # The `PixelCoord` of the end of the AI's move, also the sprites end point.
 ai_sprite_state: Optional[str] = None  # The state of the piece that the AI moved.
+
+ai_needs_turn: bool = False
 
 update_whose_turn()
 
@@ -122,12 +124,9 @@ while True:
                     HEX_MAP.make_move(start_hex, clicked_hex)
                     piece_held = start_hex = None
                     if HEX_MAP.ply % 2:
-                        ai_start_hex, ai_end_hex = AI.move(HEX_MAP)
-                        ai_curr_pixel = ADAPTER.hex_to_pixel(ai_start_hex) - PIECE_OFFSET
-                        ai_end_pixel = ADAPTER.hex_to_pixel(ai_end_hex) - PIECE_OFFSET
-                        ai_sprite_state = HEX_MAP[ai_end_hex]
-
-                        is_ai_sprite_moving = True
+                        ai_needs_turn = True
+                        # update_whose_turn()
+                        # break
 
                     # Update the king check / checkmate status string.
                     if HEX_MAP.is_king_checked('w'):
@@ -192,3 +191,12 @@ while True:
             is_ai_sprite_moving = False
 
     pygame.display.flip()
+
+    if ai_needs_turn:
+        ai_start_hex, ai_end_hex = AI.move(HEX_MAP)
+        update_whose_turn()
+        is_ai_sprite_moving = True
+        ai_curr_pixel = ADAPTER.hex_to_pixel(ai_start_hex) - PIECE_OFFSET
+        ai_end_pixel = ADAPTER.hex_to_pixel(ai_end_hex) - PIECE_OFFSET
+        ai_sprite_state = HEX_MAP[ai_end_hex]
+        ai_needs_turn = False
